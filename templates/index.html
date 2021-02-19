@@ -1,0 +1,358 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>Flask-SocketIO Test</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <style>
+    table.deck_table,th,td {border: 1px solid #AAAAAA; padding:10px; border-collapse: collapse}
+    table.finish_table,td {border: 1px solid #AAAAAA; padding:10px; border-collapse: collapse}
+    table.finish_table {margin:5px}
+
+    td {
+        text-align: center;
+        vertical-align: bottom;
+    }
+    #draggable { width: 150px; height: 150px; padding: 0.5em; }
+    #droppable { width: 150px; height: 150px; padding: 0.5em; float: left; margin: 10px; }
+    #droppable_temp { width: 150px; height: 150px; padding: 0.5em; float: left; margin: 10px; }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+    <script src="https://cdn.socket.io/3.1.1/socket.io.min.js" integrity="sha384-gDaozqUvc4HTgo8iZjwth73C6dDDeOJsAgpxBcMpZYztUfjHXpzrpdrHRdVp8ySO" crossorigin="anonymous"></script>
+    <script src="http://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <script type="text/javascript" charset="utf-8">
+        function removeDraggable(toRemoveFrom) {
+            return toRemoveFrom.substring("draggable_".length,toRemoveFrom.length+1);
+        }
+
+        $(document).ready(function(){
+            var socket = io();
+
+            var dropspace = [];
+            var temp_dropped = null;
+            var playerId = null;
+            var activePlayerComponents = [];
+            activePlayerComponents["next_stone_button"]="next_stone_button"
+
+            socket.on('tempSpace', function(msg) {
+                $('#tempSpace').empty()
+
+
+                let table = $('<table>').addClass('deck_table');
+                let row = $('<tr>').addClass('deck_row')
+                let clickIds = [msg.data.length]
+                for (let i = 0; i < msg.data.length; i++) {
+                    let col = $('<td>').addClass('deck_col');
+                    let stone = msg.data[i]
+                    clickIds[i]="temp_"+stone.id
+                    let text = ''
+                    text = text +
+                            "<span style='color:"+stone.color.toLowerCase()+"' id='temp_"+stone.id+"'>"+stone.value+"</span>";
+
+                    col.append(text);
+                    row.append(col);
+                }
+                table.append(row);
+                $('#tempSpace').append(table);
+                if (temp_dropped!=null){
+                    $('#'+temp_dropped).remove();
+                    temp_dropped = null;
+                }
+
+                for (let i=0;i<clickIds.length;i++){
+                    $("#"+clickIds[i]).click(function(){
+                        socket.emit('pick_from_temp_space', {stone: this.id.substring("temp_".length,this.id.length+1)});
+                        return false;
+                    });
+                }
+
+            });
+
+
+            socket.on('connect', function() {
+                // Connected, let's sign-up for to receive messages for this room
+               //socket.emit('room');
+            });
+
+            socket.on('getdeck', function(msg) {
+                $('#mydeck').empty();
+
+                playerId = msg.playerId
+                $('#playerIndex').empty()
+                $('#playerIndex').append(msg.playerId);
+
+                let pile = msg.data
+
+
+                for (let j = 0; j < pile.length; j++) {
+                    let text =
+                        "<div id='draggable_"+pile[j].id+"' class='ui-widget-content' style='color:"+pile[j].color.toLowerCase()+";width:30px;height:30px;float:left'><span style='padding:5px;position:absolute'>"+
+                        pile[j].value+"</span></div>";
+                    $('#mydeck').append(text);
+
+                }
+
+                pile = msg.data
+                for (let j = 0; j < pile.length; j++) {
+                    $( "#draggable_"+pile[j].id ).draggable();
+                }
+            });
+
+
+            socket.on('next_stone', function(msg) {
+                let stone = msg.data
+                let text =
+                        "<div id='draggable_"+stone.id+"' class='ui-widget-content' style='color:"+stone.color.toLowerCase()+";width:30px;height:30px;float:left'><span style='padding:5px;position:absolute'>"+
+                        stone.value+"</span></div>";
+                $('#mydeck').append(text);
+                $( "#draggable_"+stone.id ).draggable();
+
+            });
+
+            socket.on('init_game', function(msg) {
+                $('#game_id').val(msg.data);
+            });
+
+            socket.on('connection', function() {
+                //this.join("test");
+                //socket.io.join("test");
+            });
+
+
+            socket.on('next_player', function(msg) {
+                $('#playerIndex').empty()
+                $('#playerIndex').append(msg.next_player);
+                if (playerId!=msg.next_player){
+                    let keys = Object.keys(activePlayerComponents)
+                    for (let i=0;i<keys.length;i++){
+                        $('#'+keys[i]).hide();
+                    }
+                    $("#next_stone_button").hide();
+                }else{
+                    let keys = Object.keys(activePlayerComponents)
+                    for (let i=0;i<keys.length;i++){
+                        $('#'+keys[i]).show();
+                    }
+                    $("#next_stone_button").show();
+                }
+            });
+
+
+
+
+            socket.on('finishArea_others', function(msg) {
+                $('#finishArea_others').empty()
+                let keys = Object.keys(msg.data);
+
+                for (let a=0;a<keys.length;a++){
+                    let playerField = msg.data[keys[a]];
+                    $('#finishArea_others').append("<div>Player "+msg.names[keys[a]]+"</div>");
+                    let jokers = [];
+                    let jokersId = [];
+                    for (let i=0;i<playerField.length;i++){
+                        let serie = playerField[i];
+                        var table = $('<table>').addClass('finish_table');
+                        var row = $('<tr>').addClass('finish_row');
+                        for (let j=0;j<serie.length;j++){
+                            var dockElement = null;
+                            if (j==0 || j==serie.length-1){
+                                dockElement = $('<td>').addClass('finish_col');
+                                let appendix="_end";
+                                if (j==0)
+                                    appendix="_start";
+                                let id = "o_droppable_series_"+i+"_"+a+"_"+appendix;
+                                let text =
+                                    "<div id='"+id+"' class='ui-widget-header' style='width:30px;height:30px;float:left;border-width: 1px;border-color: #FEFEFE'>" +
+                                    "<span style='padding:5px;position:absolute'>&nbsp;</span></div>";
+                                    dockElement.append(text);
+
+                                activePlayerComponents[id]=id
+
+
+                            }
+
+                            if (j==0){
+                                row.append(dockElement);
+                            }
+                            var col = $('<td>').addClass('finish_col');
+                            let stone = serie[j]
+                            let text = ''
+
+                            if (stone.value==0){ //Joker
+                                let id= "o_droppable_series_"+i+"_"+a+"_"+stone.id;
+                                text = "<div id='"+id+"' class='ui-widget-header' style='width:30px;height:30px;float:left;border-width: 1px;border-color: #FEFEFE'>" +
+                                    "<span style='padding:5px;position:absolute'>"+stone.value+"</span></div>";
+                                jokers.push(id)
+                                jokersId.push(stone.id)
+                                activePlayerComponents[id]=id
+                            }else{
+                                text = text +
+                                    "<span style='color:"+stone.color.toLowerCase()+"'>"+stone.value+"</span>";
+                            }
+
+                            col.append(text);
+                            row.append(col);
+
+                            if (j==serie.length-1){
+                                row.append(dockElement);
+                            }
+
+                        }
+                        table.append(row);
+                        $('#finishArea_others').append(table);
+
+                    }
+
+                    for (let i=0;i<jokers.length;i++){
+                        let currentKey = keys[a]
+                        $( "#"+jokers[i]).droppable({
+                            drop: function( event, ui ) {
+                                socket.emit('replace_joker',
+                                    {'stone':removeDraggable(ui.draggable[0].id),'playerId':currentKey, 'joker':jokersId[i]});
+                                $("#"+ui.draggable[0].id).remove()
+                            }
+                        });
+                    }
+
+                    for (let i=0;i<playerField.length;i++) {
+                        let listindex = i
+                        let currentKey = keys[a]
+                        let playerIndex = a
+                        $( "#o_droppable_series_"+i+"_"+playerIndex+"_"+'_start').droppable({
+                            drop: function( event, ui ) {
+                                socket.emit('add_stone', {'stone':removeDraggable(ui.draggable[0].id),'row':listindex,'appendix':'_start','playerId':currentKey});
+
+                                $("#"+ui.draggable[0].id).remove()
+                            }
+                        });
+                        $( "#o_droppable_series_"+i+"_"+playerIndex+"_"+'_end').droppable({
+                            drop: function( event, ui ) {
+                                socket.emit('add_stone', {'stone':removeDraggable(ui.draggable[0].id),'row':listindex,'appendix':'_end','playerId':currentKey});
+
+                                $("#"+ui.draggable[0].id).remove()
+                            }
+                        });
+                    }
+
+                }
+
+            });
+
+            socket.on('game_message', function(msg) {
+                $('#gameMessage').empty()
+                message = msg.data;
+                $('#gameMessage').append(message);
+            });
+
+            socket.on('requestDeck', function() {
+                socket.emit('fetchdeck');
+            });
+
+
+            socket.on('remaining_piles', function(msg) {
+                $('#remaining_piles').empty()
+                let piles = msg.data
+                for (let i = 0; i < piles.length; i++) {
+                    let text =
+                    "<div style='width:7px;height:7px;float:left;background-color:#CCCCCC;margin:2px'></div>";
+                    $('#remaining_piles').append(text);
+                }
+            });
+
+            $('form#next_stone').submit(function(event) {
+                socket.emit('next_stone');
+                //$("#next_stone_button").hide();
+                return false;
+            });
+
+            $('form#init_game').submit(function(event) {
+                socket.emit('init_game', {data: $('#nr_players').val()});
+                return false;
+            });
+
+            $('form#getdeck').submit(function(event) {
+                socket.emit('getdeck', {gameId: $('#game_id').val(), playerName: $('#player_name').val()});
+                return false;
+            });
+
+            $('form#publish_stones').submit(function(event) {
+                socket.emit('publish_stones', {data: dropspace});
+                for (let i=0;i<dropspace.length;i++){
+                    $("#draggable_"+dropspace[i]).remove()
+                }
+                dropspace=[]
+                return false;
+            });
+
+            $( "#droppable" ).droppable({
+              drop: function( event, ui ) {
+                socket.emit('droppedstone',{data:ui.draggable[0].id});
+                $( this )
+                  .addClass( "ui-state-highlight" )
+                  .find( "p" )
+                    .html( "Dropped!" );
+              }
+            });
+
+            $( "#droppable_temp" ).droppable({
+              drop: function( event, ui ) {
+                    temp_dropped = ui.draggable[0].id
+                    socket.emit('droppedstone_temp',{data:ui.draggable[0].id});
+
+              }
+            });
+
+            $( "#drop_zone" ).droppable({
+              drop: function( event, ui ) {
+                  dropspace.push(removeDraggable(ui.draggable[0].id))
+              }
+            });
+
+
+
+        });
+
+
+
+    </script>
+</head>
+<body>
+
+    <div id="gameMessage" style="clear:both;color:red;margin-bottom: 5px"></div>
+
+    <form id="init_game" method="POST" action='#'>
+        <input type="text" name="nr_players" id="nr_players" placeholder="Anzahl Spieler">
+        <input type="submit" value="Bereite Spiel vor">
+    </form>
+
+    <form id="getdeck" method="POST" action='#'>
+        <input type="text" name="game_id" id="game_id" placeholder="Spiel Code">
+        <input type="text" name="player_name" id="player_name" placeholder="Name der SpielerIn ">
+        <input type="submit" value="Starte Spiel">
+    </form>
+
+     <div id="playerIndex">Current Player</div>
+    <div id="remaining_piles" style="width:150px;float:left;margin-top:10px;margin-bottom:10px"></div>
+     <div id="droppable_temp" style="float:left;width:80px;height:40px" class="ui-widget-header">
+         <span style="color:#AAAAAA;font-style: normal;font-weight: normal">Runde beenden</span>
+    </div>
+     <div id="tempSpace" style="float:left;clear:right;width:auto;margin-top:10px"></div>
+
+     <form id="next_stone" method="POST" action='#' style="clear:both;margin-top:20px">
+        <input id="next_stone_button" type="submit" value="Stein abheben">
+    </form>
+
+    <div id="mydeck" style="width:200px;float:left;margin-top:10px;margin-bottom:10px;margin-right:20px"></div>
+
+     <div id="drop_zone" style="width:500px;float:left;border-style: solid;border-color: #AAAAAA; border-style: dashed; border-width: 1px; background-color: #FEFEEFE">
+         <span style="color: #AAAAAA">Auslagefl&auml;che</span>
+         <form id="publish_stones" method="POST" action='#'>
+            <input type="submit" value="Ablegen">
+        </form>
+
+     </div>
+
+     <div id="finishArea_others" style="width:auto;float:left;clear:both;border-color: whitesmoke;border-width: 10px;border-style: groove "></div>
+
+
+</body>
+</html>
