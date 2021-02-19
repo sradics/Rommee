@@ -274,4 +274,4 @@ def test_disconnect():
 
 if __name__ == '__main__':
     print("test")
-    socketio.run(app,host="192.168.1.120",port="8080")
+    socketio.run(app,port="8080")
