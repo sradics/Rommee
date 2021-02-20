@@ -86,9 +86,12 @@
 
     table.finish_table td {
         background-color: var(--main-font-color);
-        padding: 4px;
+        padding: 10px;
+        /*
         padding-left:7px;
         padding-right:7px;
+         */
+
         font-size: large;
     }
 
@@ -107,6 +110,39 @@
         float:left;color:var(--main-font-color);margin-bottom: 5px;
         box-shadow:0 0 22px 1px #88a4b7;
 
+    }
+
+    .joker {
+        background-image: url("static/joker_2.jpg");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+    }
+
+    .green_stone {
+        color:white;
+        background-color: forestgreen;
+    }
+
+    .blue_stone {
+        color:white;
+        background-color: dodgerblue;
+    }
+
+    .red_stone {
+        color:white;
+        background-color: indianred;
+    }
+
+    .black_stone {
+        color:white;
+        background-color: #282828;
+    }
+
+    .black_stone, .red_stone, .blue_stone, .green_stone, .joker {
+        width:40px;
+        height:40px;
+        float:left
     }
 
     #startForms {
@@ -194,6 +230,20 @@
             return toRemoveFrom.substring("draggable_".length,toRemoveFrom.length+1);
         }
 
+        function createStoneDiv(stone){
+            let text = "";
+            if (stone.value!=0) {
+                text =
+                    "<div id='draggable_" + stone.id + "' class='ui-widget-content "+stone.color.toLowerCase()+"_stone" + "'><span style='padding:5px;position:absolute'>" +
+                    stone.value + "</span></div>";
+            }else{ //joker
+                text =
+                    "<div id='draggable_" + stone.id + "' class='ui-widget-content joker'><span style='padding:5px;position:absolute'>" +
+                    stone.value + "</span></div>";
+            }
+            return text;
+        }
+
         $(document).ready(function(){
             //var socket = io({transports:['websocket']});
             var socket = io();
@@ -253,9 +303,8 @@
 
 
                 for (let j = 0; j < pile.length; j++) {
-                    let text =
-                        "<div id='draggable_"+pile[j].id+"' class='ui-widget-content' style='color:"+pile[j].color.toLowerCase()+";width:30px;height:30px;float:left'><span style='padding:5px;position:absolute'>"+
-                        pile[j].value+"</span></div>";
+                    let text = createStoneDiv(pile[j]);
+
                     $('#mydeck').append(text);
 
                 }
@@ -269,9 +318,8 @@
 
             socket.on('next_stone', function(msg) {
                 let stone = msg.data
-                let text =
-                        "<div id='draggable_"+stone.id+"' class='ui-widget-content' style='color:"+stone.color.toLowerCase()+";width:30px;height:30px;float:left'><span style='padding:5px;position:absolute'>"+
-                        stone.value+"</span></div>";
+                let text = createStoneDiv(stone);
+
                 $('#mydeck').append(text);
                 $( "#draggable_"+stone.id ).draggable();
 
@@ -347,14 +395,14 @@
 
                             if (stone.value==0){ //Joker
                                 let id= "o_droppable_series_"+i+"_"+a+"_"+stone.id;
-                                text = "<div id='"+id+"' class='ui-widget-header' style='width:30px;height:30px;float:left;border-width: 1px;border-color: #FEFEFE'>" +
-                                    "<span style='padding:5px;position:absolute'>"+stone.value+"</span></div>";
+                                text = "<div id='"+id+"' class='ui-widget-header joker' style='display: table;'>" +
+                                    "<div style='display: table-cell; vertical-align: middle;'>&nbsp;</div></div>";
                                 jokers.push(id)
                                 jokersId.push(stone.id)
                                 activePlayerComponents[id]=id
                             }else{
                                 text = text +
-                                    "<span style='color:"+stone.color.toLowerCase()+"'>"+stone.value+"</span>";
+                                    "<div class='"+stone.color.toLowerCase()+"_stone' style='display: table;'><div style='display: table-cell; vertical-align: middle;'>"+stone.value+"</div></div>";
                             }
 
                             col.append(text);
@@ -696,7 +744,6 @@
      <div id="finishArea_others"></div>
 
     <div id="stats" style="width:auto;float:left;clear:both;margin-top:10px;"></div>
-
 
 
 </body>

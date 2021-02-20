@@ -352,7 +352,44 @@ def main():
     print(rommeeDeck.distribute(2))
     print(rommeeDeck.flatDeck)
 
+def validate_area_stone_constellation(area):
+    differentColors = False
+    previousColor = None
+    for stone in area:
+        if previousColor==None:
+            previousColor = stone.color
+            continue
+        if stone.color != previousColor and stone.color != Color.JOKER:
+            differentColors = True
+            break
+    if differentColors:
+        previousValue = None
+        colorDict = {}
+        for stone in area:
+            if previousValue == 0:  # joker
+                previousValue = stone.value
 
+            if previousValue == None:
+                previousValue = stone.value
+                if stone.color!=Color.JOKER:
+                    colorDict[stone.color]=stone.color
+                    continue
+            if previousValue != stone.value and stone.value!=0:
+                return False
+            if stone.color in colorDict and stone.color!=Color.JOKER:
+                return False
+            colorDict[stone.color]=stone.color
+        return True
+
+    previousValue = -1
+    allStonesInOrder = False
+    for stone in area:
+        if stone.color != Color.JOKER:
+            if stone.value <= previousValue:
+                return False
+            previousValue = stone.value
+        allStonesInOrder = True
+    return allStonesInOrder
 
 if __name__ == '__main__':
     main()
