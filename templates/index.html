@@ -68,8 +68,12 @@
         background-color: var(--decent-highlight-color);
     }
 
-    table,th,td {border: 1px solid ;border-color:var(--decent-bg-color);
-        border-collapse: collapse;padding:10px;margin-top:5px;color:var(--main-font-color);
+    table.stats_table, table.games_table {
+        border: 1px solid ;border-color:var(--decent-bg-color);
+        border-collapse: collapse;
+        padding:10px;
+        margin-top:5px;
+        color:var(--main-font-color);
         background-color: var(--decent-highlight-color);
         font-size: small;
     }
@@ -78,15 +82,20 @@
         background-color: var(--decent-color);
     }
 
+    table.deck_table {
+        padding: 0px;
+        margin-top:5px;
+        color:var(--main-font-color);
+    }
     table.deck_table td {
         background-color: var(--main-font-color);
-        padding: 10px;
+        /*padding: 10px;*/
         font-size: large;
     }
 
     table.finish_table td {
         background-color: var(--main-font-color);
-        padding: 10px;
+        padding: 5px;
         /*
         padding-left:7px;
         padding-right:7px;
@@ -96,12 +105,12 @@
     }
 
 
-    table.stats_table,td {}
+
     table.stats_table {
 
     }
 
-    table.games_table,td {}
+
     table.games_table {
         margin-top:0px;
     }
@@ -266,8 +275,15 @@
                     let stone = msg.data[i]
                     clickIds[i]="temp_"+stone.id
                     let text = ''
-                    text = text +
-                            "<span style='color:"+stone.color.toLowerCase()+"' id='temp_"+stone.id+"'>"+stone.value+"</span>";
+                    if (stone.value==0){
+                            text = text +
+                            "<div class='joker' style='display: table;' id='temp_" +
+                            stone.id + "'><div style='display: table-cell; vertical-align: middle;'>&nbsp;</div></div>";
+                    }else {
+                        text = text +
+                            "<div class='" + stone.color.toLowerCase() + "_stone' style='display: table;' id='temp_" +
+                            stone.id + "'><div style='display: table-cell; vertical-align: middle;'>" + stone.value + "</div></div>";
+                    }
 
                     col.append(text);
                     row.append(col);
