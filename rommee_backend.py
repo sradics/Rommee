@@ -7,6 +7,7 @@ import uuid
 
 class Game:
     def __init__(self, number_of_players):
+        self.numberOfPlayers = number_of_players
         self.deck = RommeeDeck()
         self.piles = self.deck.distribute(number_of_players)
         self.playerDecks = {}
@@ -17,6 +18,8 @@ class Game:
         self.currentPlayerIndex = None
         self.addedStoneIndex = {}
         self.playerNames = {}
+        self.finisher = None
+        self.status = GameStatus.NOT_STARTED
 
     def get_current_player(self):
         return self.players[self.currentPlayerIndex]
@@ -37,7 +40,8 @@ class Game:
             for num in list(range(0, len(playerDeck))):
                 stoneInDeck = playerDeck[num]
                 if stoneInDeck.id == stone:
-                    newArea.append(stoneInDeck)
+                    newArea.append(playerDeck.pop(num))
+                    break
 
         finish_area.append(newArea)
 
@@ -62,6 +66,153 @@ class Game:
             self.currentPlayerIndex=len(self.players)-1
         return self.playerDecks[playerId]
 
+    def game_stats(self):
+        total_all_players = {}
+        for player in self.players:
+            total_for_player = 0
+            finished_points = 0
+            in_deck_points = 0
+            added_to_others = 0
+
+            if player in self.playerFinishAreas:
+                for area in self.playerFinishAreas[player]:
+                    all_are_ones = True
+                    for stone in area:
+                        if stone.value!=1 and stone.value!=0: #not a one or a joker
+                            all_are_ones = False
+
+                    if all_are_ones:
+                        for stone in area:
+                            if stone.id not in self.addedStoneIndex: #stone not add by someone else
+                                finished_points += 25
+                    else:
+                        previousValue = 0
+                        for stone in area:
+                            if stone.id in self.addedStoneIndex:
+                                previousValue = stone.value
+                                continue
+                            if stone.value==0 and previousValue<9:
+                                finished_points += 5
+                            elif stone.value == 0 and previousValue >= 10:
+                                finished_points += 10
+                            elif stone.value==1 and previousValue<9:
+                                finished_points += 5
+                            elif stone.value==1:
+                                finished_points += 10
+                            elif stone.value>=10:
+                                finished_points += 10
+                            else:
+                                finished_points += 5
+                            previousValue = stone.value
+
+            total_for_player+=finished_points
+
+            for stoneKey in self.addedStoneIndex.keys():
+                addedStone = self.addedStoneIndex[stoneKey]
+                if addedStone.playerId == player:
+                    added_to_others+=addedStone.value
+
+            total_for_player+=added_to_others
+
+            playerDeck = self.playerDecks[player]
+            for num in list(range(0, len(playerDeck))):
+                stoneInDeck = playerDeck[num]
+                if stoneInDeck.value==0:
+                    in_deck_points-=25
+                elif stoneInDeck.value==1:
+                    in_deck_points-=25
+                elif stoneInDeck.value<10:
+                    in_deck_points-=5
+                elif stoneInDeck.value>=10:
+                    in_deck_points-=10
+            total_for_player+=in_deck_points
+            if player == self.finisher:
+                total_for_player+=25
+            in_deck_info = in_deck_points
+            if self.status!=GameStatus.FINISHED:
+                in_deck_info = "*"
+
+            if not player in self.playerFinishAreas: #player did not yet get out
+                total_all_players[player] = {'has_finished': False,
+                                             'player': self.playerNames[player],
+                                             'total': -100,
+                                             'finished': 0,
+                                             'added': 0,
+                                             'still_in_deck': -100}
+            else:
+                total_all_players[player]={'has_finished':(player == self.finisher),
+                                       'player':self.playerNames[player],
+                                       'total':total_for_player,
+                                       'finished':finished_points,
+                                       'added':added_to_others,
+                                       'still_in_deck':in_deck_info}
+        return total_all_players
+
+
+
+def calc_stone_value_in_area(stone_to_check,area):
+    stone_index = None
+    for index in list(range(len(area))):
+        stone = area[index]
+        if stone.id == stone_to_check.id:
+            stone_index = index
+    if stone_index==None:
+        return 0
+
+    all_are_ones = True
+
+    for stone in area:
+        if stone.value != 1 and stone.value != 0:  # not a one or a joker
+            all_are_ones = False
+
+    if all_are_ones:
+        return 25
+
+    previous_stone = None
+    next_stone = None
+    if len(area)-1>stone_index:
+        next_stone=area[stone_index+1]
+    if stone_index!=0:
+        previous_stone = area[stone_index-1]
+
+    if previous_stone!=None and previous_stone.value!=0:
+        if previous_stone.value<9:
+            return 5
+        else:
+            return 10
+
+    if previous_stone != None and previous_stone.value == 0:
+        if next_stone==None:
+            previousValue_2 = area[stone_index -2].value
+            if previousValue_2 < 8:
+                return 5
+            return 10
+        if next_stone.value==0:
+            nextValue = area[stone_index + 2].value
+            if nextValue<11 and nextValue!=1:
+                return 5
+            return 10
+        if next_stone.value>10 or next_stone==1:
+            return 10
+        return 5
+
+    if next_stone != None and next_stone.value!=0 and next_stone.value!=1:
+        if next_stone.value>10:
+            return 10
+        else:
+            return 5
+
+    if next_stone != None and next_stone.value == 0:
+        nextValue = area[stone_index + 2].value
+        if nextValue < 11 and nextValue != 1:
+            return 5
+        return 10
+
+    if next_stone != None and next_stone.value == 1:
+        return 10
+
+
+
 
 def create_random_game_id():
     gameIdBase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
@@ -74,6 +225,13 @@ def create_random_game_id():
         # Keep appending random characters using chr(x)
         random_string += (gameIdBase[random_integer-1])
     return random_string
+
+class GameStatus(Enum):
+    STARTED=1
+    FINISHED=2
+    NOT_STARTED=3
+
+
 
 class Color(Enum):
     RED=1

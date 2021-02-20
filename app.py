@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, session
-from rommee_backend import RommeeDeck, Color, StoneEncoder, TempSpace, Stone, Game, AddedStone
+from rommee_backend import *
 from flask_socketio import SocketIO, emit,join_room,leave_room, rooms
 import json
 import random
@@ -13,6 +13,7 @@ socketio = SocketIO(app ,cors_allowed_origins="*",ping_timeout=20,http_compressi
 
 
 games = {}
+rooms_and_games = {}
 
 def create_random_user_id():
     MAX_LIMIT = 255
@@ -37,6 +38,9 @@ def index():
 @socketio.on('next_stone')
 def next_stone():
     game = games[session["current_game"]]
+    if game.status == GameStatus.FINISHED:
+        sendGameFinishedMessage()
+        return
     stone = game.deck.pop_next_stone()
     render_next_stone(stone)
 
@@ -63,11 +67,7 @@ def init_game(message):
 
 
     join_room(game.gameId)
-    #response = {'data': 'test with room'}
-    #emit('game_message', response, room=game.gameId)
-
-
-    #print(str(rooms()))
+    rooms_and_games[game.gameId]=game
 
     response = {'data':game.gameId}
     responseAsJson = json.dumps(response)
@@ -100,6 +100,7 @@ def get_deck(message):
 
         if len(game.piles)==0:
             emit('requestDeck', broadcast=True, room=game.gameId)
+            game.status=GameStatus.STARTED
             send_game_message("Spiel startet. SpielerIn " + str(game.playerNames[game.get_current_player()]) + " beginnt", True,game)
         else:
             send_game_message("Warte auf weitere "+str(len(game.piles))+" SpielerInnen", True,game)
@@ -124,10 +125,14 @@ def renderDeck():
 
 @socketio.on('replace_joker')
 def replace_joker(message):
+    game = games[session["current_game"]]
+    if game.status == GameStatus.FINISHED:
+        sendGameFinishedMessage()
+        return
+
     stone = message['stone']
     joker = message['joker']
     playerWithJoker = message['playerId']
-    game = games[session["current_game"]]
 
     finishAreasWithJoker = game.playerFinishAreas[playerWithJoker]
     jokerStone = None
@@ -160,8 +165,12 @@ def replace_joker(message):
 
 @socketio.on('pick_from_temp_space')
 def pick_from_temp_space(message):
-    stoneId = message['stone']
     game = games[session["current_game"]]
+
+    if game.status == GameStatus.FINISHED:
+        sendGameFinishedMessage()
+        return
+    stoneId = message['stone']
 
     playerDeck = game.playerDecks[session["player"]]
 
@@ -184,10 +193,15 @@ def pick_from_temp_space(message):
 
 @socketio.on('add_stone')
 def add_stones(message):
+    game = games[session["current_game"]]
+
+    if game.status == GameStatus.FINISHED:
+        sendGameFinishedMessage()
+        return
+
     stone = message['stone']
     row = int(message['row'])
     appendix = message['appendix']
-    game = games[session["current_game"]]
     playerId = message['playerId']
     playerDeck = game.playerDecks[session["player"]]
 
@@ -198,20 +212,25 @@ def add_stones(message):
                 game.playerFinishAreas[playerId][row].insert(0, stoneInDeck)
             else:
                 game.playerFinishAreas[playerId][row].append(stoneInDeck)
+            stoneValue = calc_stone_value_in_area(stoneInDeck,game.playerFinishAreas[playerId][row])
             playerDeck.pop(num)
 
             if playerId!=session["player"]:
-                game.addedStoneIndex[stoneInDeck.id]=AddedStone(stoneInDeck.value,stoneInDeck,playerId)
+
+                game.addedStoneIndex[stoneInDeck.id]=AddedStone(stoneValue,stoneInDeck,session["player"])
             break
     refresh_finish_area_others()
 
 
 @socketio.on('publish_stones')
 def publish_stones(message):
-    print(session["player"])
-    print("published stone:"+str(message['data']))
-    published_stones = message['data'];
     game = games[session["current_game"]]
+    if game.status==GameStatus.FINISHED:
+        sendGameFinishedMessage()
+        return
+
+    published_stones = message['data'];
+
     game.add_stones_to_finish_areas(published_stones, session["player"])
     refresh_finish_area_others()
 
@@ -239,6 +258,22 @@ def refresh_finish_area_others():
     emit('finishArea_others', json.loads(tempSpaceAsJson), broadcast=True, room=game.gameId)
 
 
+@socketio.on('list_games')
+def list_games():
+    gamesInfo = []
+    for game_keys in games.keys():
+        game = games[game_keys]
+        gamesInfo.append({'id':game.gameId,'status':game.status.name,'num_players':game.numberOfPlayers,'joined':len(game.players)})
+    resultAsJson = json.dumps(gamesInfo)
+    emit('list_all_games', json.loads(resultAsJson))
+
+
+@socketio.on('print_stats')
+def print_status():
+    game = games[session["current_game"]]
+    resultAsJson = json.dumps(game.game_stats(), cls=StoneEncoder)
+    emit('stats', json.loads(resultAsJson), broadcast=True, room=game.gameId)
+    print(str(game.game_stats()))
 
 @socketio.on('droppedstone_temp')
 def dropped_stone_temp(message):
@@ -246,14 +281,34 @@ def dropped_stone_temp(message):
 
     if 'current_game' in session:
         game = games[session["current_game"]]
+        if game.status == GameStatus.FINISHED:
+            sendGameFinishedMessage()
+            return
+
         game.add_stone_to_temp_space(stoneIdAsStr,session["player"])
         response = {'data': game.tempSpace.space}
         tempSpaceAsJson = json.dumps(response, cls=StoneEncoder)
         emit('tempSpace', json.loads(tempSpaceAsJson), broadcast=True, room=game.gameId)
 
+        if len(game.playerDecks[session["player"]])==0: #game finished
+            game.finisher=session["player"]
+            game.status=GameStatus.FINISHED
+            send_game_message("Spiel beendet. Spieler "+game.playerNames[session["player"]]+" hat das Spiel beendet",True,game)
+            print_status()
+            return
+
+        if len(game.deck.flatDeck)==0: #stones finished
+            game.status = GameStatus.FINISHED
+            send_game_message("Spiel beendet. Alle Spielsteine verwendet",True,game)
+            print_status()
+            return
+
         response = {'next_player': game.get_next_player()}
         emit('next_player', response, broadcast=True, room=game.gameId)
         send_game_message("Spieler "+game.playerNames[game.get_current_player()]+" ist am Zug",True,game)
+
+def sendGameFinishedMessage():
+    send_game_message("Spiel beendet.", False, games[session["current_game"]])
 
 
 @socketio.on('my event')
@@ -267,10 +322,26 @@ def test_message(message):
 @socketio.on('connect')
 def test_connect():
     emit('my response', {'data': 'Connected'})
+    #print("Rooms when connect:" + str(socketio.server.manager.rooms["/"].keys()))
 
 @socketio.on('disconnect')
 def test_disconnect():
+    #print("Rooms after disconnect:"+str(socketio.server.manager.rooms["/"].keys()))
     print('Client disconnected')
+
+    for game_rooms_key in rooms_and_games.keys():
+        room_still_open = False
+        for key in socketio.server.manager.rooms["/"].keys():
+            if key == game_rooms_key:
+                room_still_open = True
+                break
+        if room_still_open == False:
+            try:
+                rooms_and_games.pop(game_rooms_key)
+                games.pop(game_rooms_key)
+            except KeyError:
+                pass
+
 
 
 if __name__ == '__main__':

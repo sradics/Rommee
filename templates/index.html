@@ -3,18 +3,188 @@
 <head>
     <title>Flask-SocketIO Test</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link href="https://fonts.googleapis.com/css?family=Karla:400,700|Zilla+Slab:300" rel="stylesheet">
     <style>
-    table.deck_table,th,td {border: 1px solid #AAAAAA; padding:10px; border-collapse: collapse}
-    table.finish_table,td {border: 1px solid #AAAAAA; padding:10px; border-collapse: collapse}
-    table.finish_table {margin:5px}
+
+        :root {
+            --main-bg-color: #0C0032;
+            --main-highlight-color: #3500D3;
+            --decent-bg-color: #282828;
+            --decent-highlight-color: #240090;
+            --decent-color: #190061;
+            --main-font-color: #FFFFFF;
+        }
+
+    body {
+        font-family: 'Zilla Slab', serif;
+        font-weight: 300;
+        font-color: var(--main-font-color) ;
+        background-color:var(--main-bg-color) ;
+        margin-left:40px;
+        margin-top:20px;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: 'Karla', sans-serif;
+        font-weight: 400;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    input[type="submit"] {
+        appearance:none;
+        -webkit-appearance:none;
+        font-family: 'Karla', sans-serif;
+        font-weight: 700;
+        font-size: 13px;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        padding:2px;
+        color:var(--main-font-color);
+        background-color: var(--decent-bg-color);
+        border:none;
+        border-radius:5px;
+    }
+
+    input[type="submit"]:hover {
+        border: 1px solid #aaa;
+    }
+
+    input[type="text"] {
+        font-family: 'Karla', sans-serif;
+        font-weight:normal;
+        font-size: 13px;
+        letter-spacing: 1px;
+        color:var(--main-font-color);
+        background-color: var(--main-bg-color);
+        border-width:0px;
+        outline:0;
+        padding:2px;
+        border-bottom-width:1px;
+        box-shadow:0 0 22px 1px #88a4b7;
+    }
+
+    input[type=text]:focus {
+        background-color: var(--decent-highlight-color);
+    }
+
+    table,th,td {border: 1px solid ;border-color:var(--decent-bg-color);
+        border-collapse: collapse;padding:10px;margin-top:5px;color:var(--main-font-color);
+        background-color: var(--decent-highlight-color);
+        font-size: small;
+    }
+
+    th {
+        background-color: var(--decent-color);
+    }
+
+    table.deck_table td {
+        background-color: var(--main-font-color);
+        padding: 10px;
+        font-size: large;
+    }
+
+    table.finish_table td {
+        background-color: var(--main-font-color);
+        padding: 4px;
+        padding-left:7px;
+        padding-right:7px;
+        font-size: large;
+    }
+
+
+    table.stats_table,td {}
+    table.stats_table {
+
+    }
+
+    table.games_table,td {}
+    table.games_table {
+        margin-top:0px;
+    }
+
+    #gameMessage { width: 250px; padding: 0.5em; float: left; background-color: var(--decent-color);
+        float:left;color:var(--main-font-color);margin-bottom: 5px;
+        box-shadow:0 0 22px 1px #88a4b7;
+
+    }
+
+    #startForms {
+        float: left;
+        margin-left:50px;
+        alignment: left;
+        margin-bottom:10px;
+    }
+
+    #initGameForm {
+        float: left;
+        maring-bottom:3px;
+    }
+
+    #getDeckForm{
+        clear:both;
+    }
+
+    #statsButton{
+        margin-top:10px;
+        clear:both;
+    }
+
+    #finishArea_others {
+        width:auto;
+        float:left;
+        clear:both;
+        border-width: 10px;
+        font-color: var(--main-font-color) ;
+        background-color:var(--main-highlight-color) ;
+        box-shadow:0 0 22px 1px #88a4b7;
+        padding:20px;
+        margin-top:20px;
+        min-width: 300px;
+    }
+
+    #list_all_games {
+        margin-top:5px;
+        margin-bottom:10px;
+    }
 
     td {
         text-align: center;
         vertical-align: bottom;
     }
+
+    div.playerName {
+        color:var(--main-font-color);
+    }
+
+    #deck_zone {
+        margin-top:20px;
+    }
+
+    #drop_zone {
+        width:500px;float:left;
+        background-color: var(--main-highlight-color);
+        box-shadow:0 0 22px 1px #88a4b7;
+    }
+
+    #drop_zone_text {
+        margin-bottom: 30px;
+        color:var(--main-font-color);
+    }
+
+
     #draggable { width: 150px; height: 150px; padding: 0.5em; }
     #droppable { width: 150px; height: 150px; padding: 0.5em; float: left; margin: 10px; }
-    #droppable_temp { width: 150px; height: 150px; padding: 0.5em; float: left; margin: 10px; }
+    #droppable_temp {
+        width: 60px; height: 50px; padding: 0.5em; float: left; margin-left: 10px; margin-right: 10px;
+        box-shadow:0 0 22px 1px #88a4b7;
+        background-color: var(--main-highlight-color);
+    }
+
+
+
+
+
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
     <script src="https://cdn.socket.io/3.1.1/socket.io.min.js" integrity="sha384-gDaozqUvc4HTgo8iZjwth73C6dDDeOJsAgpxBcMpZYztUfjHXpzrpdrHRdVp8ySO" crossorigin="anonymous"></script>
@@ -70,16 +240,14 @@
 
 
             socket.on('connect', function() {
-                // Connected, let's sign-up for to receive messages for this room
-               //socket.emit('room');
+               socket.emit('list_games');
             });
 
             socket.on('getdeck', function(msg) {
                 $('#mydeck').empty();
+                $('#list_all_games').empty();
 
                 playerId = msg.playerId
-                $('#playerIndex').empty()
-                $('#playerIndex').append(msg.playerId);
 
                 let pile = msg.data
 
@@ -120,8 +288,7 @@
 
 
             socket.on('next_player', function(msg) {
-                $('#playerIndex').empty()
-                $('#playerIndex').append(msg.next_player);
+
                 if (playerId!=msg.next_player){
                     let keys = Object.keys(activePlayerComponents)
                     for (let i=0;i<keys.length;i++){
@@ -146,7 +313,7 @@
 
                 for (let a=0;a<keys.length;a++){
                     let playerField = msg.data[keys[a]];
-                    $('#finishArea_others').append("<div>Player "+msg.names[keys[a]]+"</div>");
+                    $('#finishArea_others').append("<div class='playerName'>Player "+msg.names[keys[a]]+"</div>");
                     let jokers = [];
                     let jokersId = [];
                     for (let i=0;i<playerField.length;i++){
@@ -259,6 +426,151 @@
                 }
             });
 
+            socket.on('list_all_games', function(msg) {
+                $('#list_all_games').empty()
+                let stats_entry_keys = Object.keys(msg)
+                if (stats_entry_keys.length==0){
+                    return
+                }
+                let table = $('<table>').addClass('games_table');
+                let hrow = $('<tr>').addClass('games_hrow');
+                let hcol = $('<th>').addClass('games_hcol');
+                hcol.append("Spiel-Id");
+                hrow.append(hcol);
+
+
+
+                hcol = $('<th>').addClass('games_hcol');
+                hcol.append("Anzahl Spieler");
+                hrow.append(hcol);
+
+                hcol = $('<th>').addClass('games_hcol');
+                hcol.append("Aktive Spieler");
+                hrow.append(hcol);
+
+                hcol = $('<th>').addClass('games_hcol');
+                hcol.append("Status");
+                hrow.append(hcol);
+
+                table.append(hrow);
+
+                for (let i = 0; i < stats_entry_keys.length; i++) {
+                    let stats_entry = msg[stats_entry_keys[i]];
+                    let row = $('<tr>').addClass('games_row');
+
+                    let col = $('<td>').addClass('games_col');
+                    let text =
+                        "<div style='margin:2px;float:left'>"+stats_entry['id']+"</div>";
+                    col.append(text);
+                    col.click(function(){
+
+                        $('#game_id').val(stats_entry['id']);
+                        return false;
+                    });
+                    row.append(col);
+
+
+                    col = $('<td>').addClass('games_col');
+                    text =
+                    "<div style='margin:2px;float:left'>"+stats_entry['num_players']+"</div>";
+                    col.append(text);
+                    row.append(col)
+
+                    col = $('<td>').addClass('games_col');
+                    text =
+                    "<div style='margin:2px;float:left'>"+stats_entry['joined']+"</div>";
+                    col.append(text);
+                    row.append(col)
+
+                    col = $('<td>').addClass('games_col');
+                    text =
+                    "<div style='margin:2px;float:left'>"+stats_entry['status']+"</div>";
+                    col.append(text);
+                    row.append(col)
+
+
+                    table.append(row);
+                }
+
+                $('#list_all_games').append(table);
+            });
+
+            socket.on('stats', function(msg) {
+                $('#stats').empty()
+                let stats_entry_keys = Object.keys(msg)
+                let table = $('<table>').addClass('stats_table');
+                let hrow = $('<tr>').addClass('stats_hrow');
+                let hcol = $('<th>').addClass('stats_hcol');
+                hcol.append("SpielerIn");
+                hrow.append(hcol);
+
+                hcol = $('<th>').addClass('stats_hcol');
+                hcol.append("Punkte gesamt");
+                hrow.append(hcol);
+
+                hcol = $('<th>').addClass('stats_hcol');
+                hcol.append("davon ausgelegt");
+                hrow.append(hcol);
+
+                hcol = $('<th>').addClass('stats_hcol');
+                hcol.append("davon angelegt");
+                hrow.append(hcol);
+
+                hcol = $('<th>').addClass('stats_hcol');
+                hcol.append("davon in der Hand");
+                hrow.append(hcol);
+
+                table.append(hrow);
+
+                for (let i = 0; i < stats_entry_keys.length; i++) {
+                    let stats_entry = msg[stats_entry_keys[i]];
+                    let row = $('<tr>').addClass('stats_row');
+
+                    let col = $('<td>').addClass('stats_col');
+                    let text = "";
+                    if (stats_entry['has_finished']==true){
+                        text =
+                        "<div style='margin:2px;float:left;font-weight: bolder'>"+stats_entry['player']+"*</div>";
+                        col.append(text);
+                        row.append(col);
+                    }else{
+                        text =
+                        "<div style='margin:2px;float:left'>"+stats_entry['player']+"</div>";
+                        col.append(text);
+                        row.append(col);
+                    }
+
+
+                    col = $('<td>').addClass('stats_col');
+                    text =
+                    "<div style='margin:2px;float:left'>"+stats_entry['total']+"</div>";
+                    col.append(text);
+                    row.append(col)
+
+                    col = $('<td>').addClass('stats_col');
+                    text =
+                    "<div style='margin:2px;float:left'>"+stats_entry['finished']+"</div>";
+                    col.append(text);
+                    row.append(col)
+
+                    col = $('<td>').addClass('stats_col');
+                    text =
+                    "<div style='margin:2px;float:left'>"+stats_entry['added']+"</div>";
+                    col.append(text);
+                    row.append(col)
+
+                    col = $('<td>').addClass('stats_col');
+                    text =
+                    "<div style='margin:2px;float:left'>"+stats_entry['still_in_deck']+"</div>";
+                    col.append(text);
+                    row.append(col)
+
+                    table.append(row);
+                }
+
+                $('#stats').append(table);
+            });
+
             $('form#next_stone').submit(function(event) {
                 socket.emit('next_stone');
                 //$("#next_stone_button").hide();
@@ -274,6 +586,13 @@
                 socket.emit('getdeck', {gameId: $('#game_id').val(), playerName: $('#player_name').val()});
                 return false;
             });
+
+            $('form#print_stats').submit(function(event) {
+                socket.emit('print_stats');
+                return false;
+            });
+
+
 
             $('form#publish_stones').submit(function(event) {
                 socket.emit('publish_stones', {data: dropspace});
@@ -318,41 +637,66 @@
 </head>
 <body>
 
-    <div id="gameMessage" style="clear:both;color:red;margin-bottom: 5px"></div>
+    <div id="gameMessage">Nachrichtenbox</div>
 
-    <form id="init_game" method="POST" action='#'>
-        <input type="text" name="nr_players" id="nr_players" placeholder="Anzahl Spieler">
-        <input type="submit" value="Bereite Spiel vor">
-    </form>
+    <div id="startForms">
+        <div id="initGameForm">
+            <form id="init_game" method="POST" action='#'>
+                <div class="form__group field">
+                    <input type="text"  name="nr_players" id="nr_players" placeholder="Anzahl Spieler">
+                    <input type="submit" value="Bereite Spiel vor">
+                </div>
 
-    <form id="getdeck" method="POST" action='#'>
-        <input type="text" name="game_id" id="game_id" placeholder="Spiel Code">
-        <input type="text" name="player_name" id="player_name" placeholder="Name der SpielerIn ">
-        <input type="submit" value="Starte Spiel">
-    </form>
+            </form>
+        </div>
 
-     <div id="playerIndex">Current Player</div>
-    <div id="remaining_piles" style="width:150px;float:left;margin-top:10px;margin-bottom:10px"></div>
-     <div id="droppable_temp" style="float:left;width:80px;height:40px" class="ui-widget-header">
-         <span style="color:#AAAAAA;font-style: normal;font-weight: normal">Runde beenden</span>
+        <div id="getDeckForm">
+            <form id="getdeck" method="POST" action='#'>
+                <input type="text" name="game_id" id="game_id" placeholder="Spiel Code">
+                <input type="text" name="player_name" id="player_name" placeholder="Name der SpielerIn ">
+                <input type="submit" value="Starte Spiel">
+            </form>
+        </div>
+        <div id="statsButton">
+            <form id="print_stats" method="POST" action='#'>
+                <input id="print_stats" type="submit" value="Stats">
+            </form>
+        </div>
     </div>
-     <div id="tempSpace" style="float:left;clear:right;width:auto;margin-top:10px"></div>
 
-     <form id="next_stone" method="POST" action='#' style="clear:both;margin-top:20px">
-        <input id="next_stone_button" type="submit" value="Stein abheben">
-    </form>
+    <div id="list_all_games" style="width:auto;float:left;margin-left:30px"></div>
 
-    <div id="mydeck" style="width:200px;float:left;margin-top:10px;margin-bottom:10px;margin-right:20px"></div>
 
-     <div id="drop_zone" style="width:500px;float:left;border-style: solid;border-color: #AAAAAA; border-style: dashed; border-width: 1px; background-color: #FEFEEFE">
-         <span style="color: #AAAAAA">Auslagefl&auml;che</span>
-         <form id="publish_stones" method="POST" action='#'>
-            <input type="submit" value="Ablegen">
+    <div style="clear:both;margin-top:20px;">
+        <div id="remaining_piles" style="width:150px;float:left;"></div>
+
+        <div id="droppable_temp">
+             <span style="color:#AAAAAA;font-style: normal;font-weight: normal">Runde beenden</span>
+        </div>
+
+        <div id="tempSpace" style="float:left;clear:right;width:auto"></div>
+
+         <form id="next_stone" method="POST" action='#' style="clear:both;margin-top:20px">
+            <input id="next_stone_button" type="submit" value="Stein abheben">
         </form>
+    </div>
 
-     </div>
 
-     <div id="finishArea_others" style="width:auto;float:left;clear:both;border-color: whitesmoke;border-width: 10px;border-style: groove "></div>
+    <div id="deck_zone">
+        <div id="mydeck" style="width:200px;float:left;margin-right:20px"></div>
+
+         <div id="drop_zone">
+             <div id="drop_zone_text">Auslagefl&auml;che</div>
+             <form id="publish_stones" method="POST" action='#'>
+                <input type="submit" value="Ablegen">
+            </form>
+         </div>
+    </div>
+
+     <div id="finishArea_others"></div>
+
+    <div id="stats" style="width:auto;float:left;clear:both;margin-top:10px;"></div>
+
 
 
 </body>
