@@ -329,9 +329,9 @@ def test_disconnect():
     #print("Rooms after disconnect:"+str(socketio.server.manager.rooms["/"].keys()))
     print('Client disconnected')
 
-    for game_rooms_key in rooms_and_games.keys():
+    for game_rooms_key in list(rooms_and_games.keys()):
         room_still_open = False
-        for key in socketio.server.manager.rooms["/"].keys():
+        for key in list(socketio.server.manager.rooms["/"].keys()):
             if key == game_rooms_key:
                 room_still_open = True
                 break
