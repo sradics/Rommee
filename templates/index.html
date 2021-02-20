@@ -253,6 +253,26 @@
             return text;
         }
 
+        function isOverlap(idOne,idTwo){
+            let objOne=$(idOne),
+                objTwo=$(idTwo),
+                offsetOne = objOne.offset(),
+                offsetTwo = objTwo.offset(),
+                topOne=offsetOne.top,
+                topTwo=offsetTwo.top,
+                leftOne=offsetOne.left,
+                leftTwo=offsetTwo.left,
+                widthOne = objOne.width(),
+                widthTwo = objTwo.width(),
+                heightOne = objOne.height(),
+                heightTwo = objTwo.height();
+            let leftTop = leftTwo > leftOne && leftTwo < leftOne+widthOne && topTwo > topOne && topTwo < topOne+heightOne,
+                rightTop = leftTwo+widthTwo > leftOne && leftTwo+widthTwo < leftOne+widthOne  && topTwo > topOne && topTwo < topOne+heightOne,
+                leftBottom = leftTwo > leftOne && leftTwo < leftOne+widthOne  && topTwo+heightTwo > topOne && topTwo+heightTwo < topOne+heightOne,
+                rightBottom = leftTwo+widthTwo > leftOne && leftTwo+widthTwo < leftOne+widthOne  && topTwo+heightTwo > topOne && topTwo+heightTwo < topOne+heightOne;
+            return leftTop || rightTop || leftBottom || rightBottom;
+        }
+
         $(document).ready(function(){
             //var socket = io({transports:['websocket']});
             var socket = io();
@@ -659,11 +679,39 @@
 
 
             $('form#publish_stones').submit(function(event) {
-                socket.emit('publish_stones', {data: dropspace});
+                /*
+                check for overlap with drop zone
+                 */
+                console.log($("#drop_zone").offset());
+                console.log($("#drop_zone").width());
+                console.log($("#drop_zone").height());
+                consolidatedDropspace = [];
+
                 for (let i=0;i<dropspace.length;i++){
-                    $("#draggable_"+dropspace[i]).remove()
+                    console.log($("#draggable_"+dropspace[i]).text());
+                    console.log($("#draggable_"+dropspace[i]).offset());
+                    console.log($("#draggable_"+dropspace[i]).width());
+                    console.log($("#draggable_"+dropspace[i]).height());
+
+                    console.log("overlaps:"+isOverlap('#drop_zone',"#draggable_"+dropspace[i]));
+
+                    if (isOverlap('#drop_zone',"#draggable_"+dropspace[i])){
+                        consolidatedDropspace.push(dropspace[i]);
+                    }
                 }
-                dropspace=[]
+
+                consolidatedDropspace.sort(function(a, b){
+                    return $("#draggable_"+a).offset().left-$("#draggable_"+b).offset().left
+                });
+
+                
+
+                socket.emit('publish_stones', {data: consolidatedDropspace});
+                for (let i=0;i<consolidatedDropspace.length;i++){
+                    $("#draggable_"+consolidatedDropspace[i]).remove()
+                }
+                dropspace=[];
+                consolidatedDropspace = [];
                 return false;
             });
 
