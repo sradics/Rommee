@@ -75,16 +75,42 @@ th {
     background-color: var(--decent-color);
 }
 
-table.deck_table {
+table.deck_table, table.sortTable {
     padding: 0px;
     margin-top: 5px;
     color: var(--main-font-color);
 }
 
-table.deck_table td {
+table.deck_table td, table.sortTable td  {
     background-color: var(--main-font-color);
     /*padding: 10px;*/
     font-size: large;
+}
+
+table.sortTable td {
+    width:50px;
+    height:50px;
+    background-color: var(--decent-color);
+    vertical-align: middle !important;
+    text-align: center;
+}
+
+.center {
+    position:absolute;left:50%;top:50%;transform: translate(-50%, -50%);
+}
+
+.centerStone {
+    position:absolute;left:0px;top:0px;padding-left:5px;padding-top:5px;
+}
+
+.wrapper{
+    position: relative;
+    width:100%;
+    height:100%;
+}
+
+.highlightColumn  {
+    background-color: var(--decent-highlight-color) !important;
 }
 
 table.finish_table td {
@@ -177,8 +203,8 @@ table.games_table {
 #finishArea_others {
     width: auto;
     float: left;
-    clear: both;
     border-width: 10px;
+    clear: left;
     font-color: var(--main-font-color);
     background-color: var(--main-highlight-color);
     box-shadow: 0 0 22px 1px #88a4b7;
@@ -186,6 +212,15 @@ table.games_table {
     margin-top: 20px;
     min-width: 300px;
 }
+
+#sortDeck{
+    width: auto;
+    float: left;
+    clear: right;
+    margin-top: 10px;
+    margin-left: 20px;
+}
+
 
 #list_all_games {
     margin-top: 5px;

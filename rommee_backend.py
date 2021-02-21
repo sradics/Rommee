@@ -258,7 +258,7 @@ class Color(Enum):
 
 class StoneEncoder(JSONEncoder):
         def default(self, o):
-            return {'value':o.value, 'color':o.color.name, 'id':str(o.id)}
+            return {'value':o.value, 'color':o.color.name, 'id':str(o.id), 'position':o.position}
 
 
 
@@ -267,10 +267,11 @@ class Stone:
         self.value = value
         self.color = color
         self.id = str(uuid.uuid4())
+        self.position = None
 
     def __repr__(self):
-        return "{};{}".format(
-            self.value, self.color
+        return "{};{};{},{}".format(
+            self.value, self.color, self.id, self.position
         )
 
 class AddedStone:

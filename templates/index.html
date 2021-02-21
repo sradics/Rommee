@@ -4,7 +4,7 @@
     <title>Rommee</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="https://fonts.googleapis.com/css?family=Karla:400,700|Zilla+Slab:300" rel="stylesheet">
-    <link rel="stylesheet" href="static/game_styles.css?id=1234">
+    <link rel="stylesheet" href="static/game_styles.css?id=12346rfsrs39">
     <link rel="stylesheet" href="static/css-loader.css?id=1234">
     <style>
 
@@ -22,15 +22,23 @@
             return toRemoveFrom.substring("draggable_".length, toRemoveFrom.length + 1);
         }
 
-        function createStoneDiv(stone) {
+        function    createStoneDiv(stone,inTable=false) {
             let text = "";
             if (stone.value != 0) {
                 text =
-                    "<div id='draggable_" + stone.id + "' class='ui-widget-content " + stone.color.toLowerCase() + "_stone" + "'><span style='padding:5px;position:absolute'>" +
+                    "<div id='draggable_" + stone.id + "' class='ui-widget-content " + stone.color.toLowerCase() + "_stone";
+                if (inTable){
+                    text = text + " centerStone";
+                }
+                text = text+ "'><span class='center'>" +
                     stone.value + "</span></div>";
             } else { //joker
-                text =
-                    "<div id='draggable_" + stone.id + "' class='ui-widget-content joker'><span style='padding:5px;position:absolute'>" +
+                 text =
+                    "<div id='draggable_" + stone.id + "' class='ui-widget-content joker";
+                 if (inTable){
+                    text = text + " centerStone";
+                 }
+                 text = text+" '><span class='center'>" +
                     stone.value + "</span></div>";
             }
             return text;
@@ -56,6 +64,8 @@
             return leftTop || rightTop || leftBottom || rightBottom;
         }
 
+
+
         $(document).ready(function () {
             //var socket = io({transports:['websocket']});
             var socket = io();
@@ -66,6 +76,46 @@
             var playerId = null;
             var activePlayerComponents = [];
             activePlayerComponents["next_stone_button"] = "next_stone_button"
+
+            function renderSortDeck(numberOfRows, numberOfColums){
+                let table = $('<table>').addClass('sortTable');
+
+                for (i=0;i<numberOfRows;i++){
+                    let row = $('<tr>').addClass('sortTableRow')
+                    for (j=0;j<numberOfColums;j++){
+                        let col = $('<td>').addClass('sortTableColumn');
+                        let wrapperDiv = $('<div>').addClass('wrapper');
+                        wrapperDiv.attr('id',"sorttable_"+i+"_"+j);
+
+                        wrapperDiv.droppable({
+                            drop: function (event, ui) {
+                                console.log(ui.draggable[0].id)
+                                $("#"+this.id).addClass("highlightColumn");
+                                //$('#css_loader_screen').addClass('is-active');
+                                socket.emit('add_stone_position',
+                                    {
+                                        stone: removeDraggable(ui.draggable[0].id),
+                                        position: this.id
+                                });
+                                $("#"+this.id).append($("#"+ui.draggable[0].id));
+                                let element = $("#"+ui.draggable[0].id)[0];
+                                element.style.setProperty("left","0px");
+                                element.style.setProperty("top","0px");
+                                element.style.setProperty("position","absolute");
+                                element.style.setProperty("padding-left","5px");
+                                element.style.setProperty("padding-top","5px");
+                                //element.style.setProperty("transform","translate(-50%, -50%)");
+                            }
+                        });
+                        col.append(wrapperDiv);
+                        row.append(col);
+                    }
+                    table.append(row);
+                }
+                return table;
+            }
+
+            $("#sortDeck").append(renderSortDeck(7,10));
 
             socket.on('tempSpace', function (msg) {
                 $('#tempSpace').empty()
@@ -114,8 +164,23 @@
                 $('#css_loader_screen').removeClass('is-active');
             });
 
+            socket.on('renderSortDeck', function (msg) {
+                let pile = msg.data;
+                $("#sortDeck").empty();
+                $("#sortDeck").append(renderSortDeck(7,10));
+
+                for (let j = 0; j < pile.length; j++) {
+                    let stone = pile[j];
+                    let text = createStoneDiv(stone,true);
+                    $('#'+stone.position).append(text);
+                }
+
+            });
+
             socket.on('getdeck', function (msg) {
                 $('#mydeck').empty();
+                $("#sortDeck").empty();
+                $("#sortDeck").append(renderSortDeck(7,10));
                 $('#list_all_games').empty();
 
                 playerId = msg.playerId
@@ -123,8 +188,15 @@
                 let pile = msg.data
 
                 for (let j = 0; j < pile.length; j++) {
-                    let text = createStoneDiv(pile[j]);
-                    $('#mydeck').append(text);
+                    let stone = pile[j];
+
+                    if (stone.position){
+                        let text = createStoneDiv(stone,true);
+                        $('#'+stone.position).append(text);
+                    }else{
+                        let text = createStoneDiv(stone,false);
+                        $('#mydeck').append(text);
+                    }
                 }
 
                 pile = msg.data
@@ -523,7 +595,10 @@
     </div>
 </div>
 
-<div id="list_all_games" style="width:auto;float:left;margin-left:30px"></div>
+<div id="statistikInfo" style="float:left;margin-left:30px">
+    <div id="stats" style="width:auto;float:left;clear:right"></div>
+    <div id="list_all_games" style="width:auto;float:left"></div>
+</div>
 
 
 <div style="clear:both;margin-top:20px;">
@@ -554,7 +629,11 @@
 
 <div id="finishArea_others"></div>
 
-<div id="stats" style="width:auto;float:left;clear:both;margin-top:10px;"></div>
+<div id="sortDeck"></div>
+
+
+
+
 
 <div class="loader loader-default" id="css_loader_screen"></div>
 

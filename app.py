@@ -284,6 +284,31 @@ def print_status():
     emit('stats', json.loads(resultAsJson), broadcast=True, room=game.gameId)
     print(str(game.game_stats()))
 
+@socketio.on('add_stone_position')
+def add_stone_position(message):
+    stoneId = message['stone']
+    position = message['position']
+    game = games[session["current_game"]]
+    playerDeck = game.playerDecks[session["player"]]
+    for stone in playerDeck:
+        if stone.id == stoneId:
+            stone.position = position
+
+def rebuildSortDeck():
+    game = games[session["current_game"]]
+    playerDeck = game.playerDecks[session["player"]]
+    positionedStones = []
+    for stone in playerDeck:
+        if stone.position!=None:
+            positionedStones.append(stone)
+
+    response = {'data': positionedStones, 'playerId': session["player"]}
+    pilesAsJson = json.dumps(response, cls=StoneEncoder)
+
+    emit('renderSortDeck', json.loads(pilesAsJson))
+
+
+
 @socketio.on('droppedstone_temp')
 def dropped_stone_temp(message):
     stoneIdAsStr = message['data'][len("draggable_"):]
