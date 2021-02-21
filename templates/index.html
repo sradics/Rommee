@@ -207,12 +207,15 @@
 
 
             socket.on('next_stone', function (msg) {
+                $('#next_stone_button').hide();
                 $('#css_loader_screen').removeClass('is-active');
                 let stone = msg.data
                 let text = createStoneDiv(stone);
 
                 $('#mydeck').append(text);
                 $("#draggable_" + stone.id).draggable();
+
+
 
             });
 
@@ -367,6 +370,7 @@
             });
 
             socket.on('game_message', function (msg) {
+                $('#css_loader_screen').removeClass('is-active');
                 $('#gameMessage').empty()
                 message = msg.data;
                 $('#gameMessage').append(message);

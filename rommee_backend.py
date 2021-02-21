@@ -36,6 +36,18 @@ class Game:
         finish_area = self.playerFinishAreas[playerId]
         newArea = []
         playerDeck = self.playerDecks[playerId]
+        testArea = []
+
+        for stone in stones:
+            for num in list(range(0, len(playerDeck))):
+                stoneInDeck = playerDeck[num]
+                if stoneInDeck.id == stone:
+                    testArea.append(stoneInDeck)
+                    break
+
+        if validate_area_stone_constellation(testArea) == False:
+            return False
+
         for stone in stones:
             for num in list(range(0, len(playerDeck))):
                 stoneInDeck = playerDeck[num]
@@ -45,6 +57,7 @@ class Game:
                     break
 
         finish_area.append(newArea)
+        return True
 
 
     def add_stone_to_temp_space(self,stoneId,playerId):
@@ -356,15 +369,19 @@ def main():
     print(rommeeDeck.flatDeck)
 
 def validate_area_stone_constellation(area):
+    if len(area)<3:
+        return False
     differentColors = False
     previousColor = None
     for stone in area:
         if previousColor==None:
             previousColor = stone.color
             continue
-        if stone.color != previousColor and stone.color != Color.JOKER:
+        if stone.color != previousColor and stone.color != Color.JOKER and previousColor!= Color.JOKER:
             differentColors = True
             break
+        else:
+            previousColor = stone.color
     if differentColors:
         previousValue = None
         colorDict = {}
@@ -384,12 +401,20 @@ def validate_area_stone_constellation(area):
             colorDict[stone.color]=stone.color
         return True
 
-    previousValue = -1
+    previousValue = None
     allStonesInOrder = False
     for stone in area:
         if stone.color != Color.JOKER:
-            if stone.value <= previousValue:
+            if previousValue==None:
+                pass
+            elif stone.value==1 and (previousValue==13 or previousValue==0):
+                pass
+            elif previousValue == 0:
+                pass
+            elif (stone.value - previousValue)!=1:
                 return False
+            previousValue = stone.value
+        else:
             previousValue = stone.value
         allStonesInOrder = True
     return allStonesInOrder

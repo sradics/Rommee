@@ -110,6 +110,8 @@ def get_deck(message):
         if len(game.piles)==0:
             emit('requestDeck', broadcast=True, room=game.gameId)
             game.status=GameStatus.STARTED
+            refresh_temp_space()
+            refresh_finish_area_others()
             send_game_message("Spiel startet. SpielerIn " + str(game.playerNames[game.get_current_player()]) + " beginnt", True,game)
         else:
             send_game_message("Warte auf weitere "+str(len(game.piles))+" SpielerInnen", True,game)
@@ -158,6 +160,20 @@ def replace_joker(message):
                 replaceArray = finishArea
                 replaceIndex = numFinishArea
                 break
+
+    #dry run
+    replaceStone = None
+    dummy_replaceArray = replaceArray.copy()
+    for num in list(range(0, len(deckToAddJoker))):
+        stoneInDeck = deckToAddJoker[num]
+        if stoneInDeck.id == stone:
+            replaceStone = deckToAddJoker[num]
+            break
+    dummy_replaceArray[replaceIndex] = replaceStone
+    if validate_area_stone_constellation(dummy_replaceArray) == False:
+        send_game_message("Die Kombination der Steine war ungültig!", False, game)
+        renderDeck()
+        return
 
 
     replaceStone = None
@@ -217,6 +233,18 @@ def add_stones(message):
     for num in list(range(0, len(playerDeck))):
         stoneInDeck = playerDeck[num]
         if stoneInDeck.id == stone:
+            #testrun
+            testArea = game.playerFinishAreas[playerId][row].copy()
+            if (appendix=="_start"):
+                testArea.insert(0, stoneInDeck)
+            else:
+                testArea.append(stoneInDeck)
+            if validate_area_stone_constellation(testArea) == False:
+                send_game_message("Die Kombination der Steine war ungültig!", False, game)
+                renderDeck()
+                #refresh_finish_area_others()
+                return
+
             if (appendix=="_start"):
                 game.playerFinishAreas[playerId][row].insert(0, stoneInDeck)
             else:
@@ -240,8 +268,13 @@ def publish_stones(message):
 
     published_stones = message['data'];
 
-    game.add_stones_to_finish_areas(published_stones, session["player"])
-    refresh_finish_area_others()
+    stoneCombinationWasValid = game.add_stones_to_finish_areas(published_stones, session["player"])
+    if stoneCombinationWasValid:
+        refresh_finish_area_others()
+        send_game_message("Steine wurden erfolgreich abgelegt", False, game)
+    else:
+        send_game_message("Die Kombination der Steine war ungültig!",False,game)
+        renderDeck()
 
 def send_game_message(message, broadcast,game):
     response = {'data': message}
