@@ -1,251 +1,33 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Flask-SocketIO Test</title>
+    <title>Rommee</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="https://fonts.googleapis.com/css?family=Karla:400,700|Zilla+Slab:300" rel="stylesheet">
+    <link rel="stylesheet" href="static/game_styles.css?id=1234">
     <style>
 
-        :root {
-            --main-bg-color: #0C0032;
-            --main-highlight-color: #3500D3;
-            --decent-bg-color: #282828;
-            --decent-highlight-color: #240090;
-            --decent-color: #190061;
-            --main-font-color: #FFFFFF;
-        }
-
-    body {
-        font-family: 'Zilla Slab', serif;
-        font-weight: 300;
-        font-color: var(--main-font-color) ;
-        background-color:var(--main-bg-color) ;
-        margin-left:40px;
-        margin-top:20px;
-    }
-
-    h1, h2, h3, h4, h5, h6 {
-        font-family: 'Karla', sans-serif;
-        font-weight: 400;
-        text-transform: uppercase;
-        letter-spacing: 2px;
-    }
-
-    input[type="submit"] {
-        appearance:none;
-        -webkit-appearance:none;
-        font-family: 'Karla', sans-serif;
-        font-weight: 700;
-        font-size: 13px;
-        text-transform: uppercase;
-        letter-spacing: 3px;
-        padding:2px;
-        color:var(--main-font-color);
-        background-color: var(--decent-bg-color);
-        border:none;
-        border-radius:5px;
-    }
-
-    input[type="submit"]:hover {
-        border: 1px solid #aaa;
-    }
-
-    input[type="text"] {
-        font-family: 'Karla', sans-serif;
-        font-weight:normal;
-        font-size: 13px;
-        letter-spacing: 1px;
-        color:var(--main-font-color);
-        background-color: var(--main-bg-color);
-        border-width:0px;
-        outline:0;
-        padding:2px;
-        border-bottom-width:1px;
-        box-shadow:0 0 22px 1px #88a4b7;
-    }
-
-    input[type=text]:focus {
-        background-color: var(--decent-highlight-color);
-    }
-
-    table.stats_table, table.games_table {
-        border: 1px solid ;border-color:var(--decent-bg-color);
-        border-collapse: collapse;
-        padding:10px;
-        margin-top:5px;
-        color:var(--main-font-color);
-        background-color: var(--decent-highlight-color);
-        font-size: small;
-    }
-
-    th {
-        background-color: var(--decent-color);
-    }
-
-    table.deck_table {
-        padding: 0px;
-        margin-top:5px;
-        color:var(--main-font-color);
-    }
-    table.deck_table td {
-        background-color: var(--main-font-color);
-        /*padding: 10px;*/
-        font-size: large;
-    }
-
-    table.finish_table td {
-        background-color: var(--main-font-color);
-        padding: 5px;
-        /*
-        padding-left:7px;
-        padding-right:7px;
-         */
-
-        font-size: large;
-    }
-
-
-
-    table.stats_table {
-
-    }
-
-
-    table.games_table {
-        margin-top:0px;
-    }
-
-    #gameMessage { width: 250px; padding: 0.5em; float: left; background-color: var(--decent-color);
-        float:left;color:var(--main-font-color);margin-bottom: 5px;
-        box-shadow:0 0 22px 1px #88a4b7;
-
-    }
-
-    .joker {
-        background-image: url("static/joker_2.jpg");
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-    }
-
-    .green_stone {
-        color:white;
-        background-color: forestgreen;
-    }
-
-    .blue_stone {
-        color:white;
-        background-color: dodgerblue;
-    }
-
-    .red_stone {
-        color:white;
-        background-color: indianred;
-    }
-
-    .black_stone {
-        color:white;
-        background-color: #282828;
-    }
-
-    .black_stone, .red_stone, .blue_stone, .green_stone, .joker {
-        width:40px;
-        height:40px;
-        float:left
-    }
-
-    #startForms {
-        float: left;
-        margin-left:50px;
-        alignment: left;
-        margin-bottom:10px;
-    }
-
-    #initGameForm {
-        float: left;
-        maring-bottom:3px;
-    }
-
-    #getDeckForm{
-        clear:both;
-    }
-
-    #statsButton{
-        margin-top:10px;
-        clear:both;
-    }
-
-    #finishArea_others {
-        width:auto;
-        float:left;
-        clear:both;
-        border-width: 10px;
-        font-color: var(--main-font-color) ;
-        background-color:var(--main-highlight-color) ;
-        box-shadow:0 0 22px 1px #88a4b7;
-        padding:20px;
-        margin-top:20px;
-        min-width: 300px;
-    }
-
-    #list_all_games {
-        margin-top:5px;
-        margin-bottom:10px;
-    }
-
-    td {
-        text-align: center;
-        vertical-align: bottom;
-    }
-
-    div.playerName {
-        color:var(--main-font-color);
-    }
-
-    #deck_zone {
-        margin-top:20px;
-    }
-
-    #drop_zone {
-        width:500px;float:left;
-        background-color: var(--main-highlight-color);
-        box-shadow:0 0 22px 1px #88a4b7;
-    }
-
-    #drop_zone_text {
-        margin-bottom: 30px;
-        color:var(--main-font-color);
-    }
-
-
-    #draggable { width: 150px; height: 150px; padding: 0.5em; }
-    #droppable { width: 150px; height: 150px; padding: 0.5em; float: left; margin: 10px; }
-    #droppable_temp {
-        width: 60px; height: 50px; padding: 0.5em; float: left; margin-left: 10px; margin-right: 10px;
-        box-shadow:0 0 22px 1px #88a4b7;
-        background-color: var(--main-highlight-color);
-    }
-
-
-
-
-
     </style>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
-    <script src="https://cdn.socket.io/3.1.1/socket.io.min.js" integrity="sha384-gDaozqUvc4HTgo8iZjwth73C6dDDeOJsAgpxBcMpZYztUfjHXpzrpdrHRdVp8ySO" crossorigin="anonymous"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+            integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg=="
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.socket.io/3.1.1/socket.io.min.js"
+            integrity="sha384-gDaozqUvc4HTgo8iZjwth73C6dDDeOJsAgpxBcMpZYztUfjHXpzrpdrHRdVp8ySO"
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
+            integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
     <script type="text/javascript" charset="utf-8">
         function removeDraggable(toRemoveFrom) {
-            return toRemoveFrom.substring("draggable_".length,toRemoveFrom.length+1);
+            return toRemoveFrom.substring("draggable_".length, toRemoveFrom.length + 1);
         }
 
-        function createStoneDiv(stone){
+        function createStoneDiv(stone) {
             let text = "";
-            if (stone.value!=0) {
+            if (stone.value != 0) {
                 text =
-                    "<div id='draggable_" + stone.id + "' class='ui-widget-content "+stone.color.toLowerCase()+"_stone" + "'><span style='padding:5px;position:absolute'>" +
+                    "<div id='draggable_" + stone.id + "' class='ui-widget-content " + stone.color.toLowerCase() + "_stone" + "'><span style='padding:5px;position:absolute'>" +
                     stone.value + "</span></div>";
-            }else{ //joker
+            } else { //joker
                 text =
                     "<div id='draggable_" + stone.id + "' class='ui-widget-content joker'><span style='padding:5px;position:absolute'>" +
                     stone.value + "</span></div>";
@@ -253,27 +35,27 @@
             return text;
         }
 
-        function isOverlap(idOne,idTwo){
-            let objOne=$(idOne),
-                objTwo=$(idTwo),
+        function isOverlap(idOne, idTwo) {
+            let objOne = $(idOne),
+                objTwo = $(idTwo),
                 offsetOne = objOne.offset(),
                 offsetTwo = objTwo.offset(),
-                topOne=offsetOne.top,
-                topTwo=offsetTwo.top,
-                leftOne=offsetOne.left,
-                leftTwo=offsetTwo.left,
+                topOne = offsetOne.top,
+                topTwo = offsetTwo.top,
+                leftOne = offsetOne.left,
+                leftTwo = offsetTwo.left,
                 widthOne = objOne.width(),
                 widthTwo = objTwo.width(),
                 heightOne = objOne.height(),
                 heightTwo = objTwo.height();
-            let leftTop = leftTwo > leftOne && leftTwo < leftOne+widthOne && topTwo > topOne && topTwo < topOne+heightOne,
-                rightTop = leftTwo+widthTwo > leftOne && leftTwo+widthTwo < leftOne+widthOne  && topTwo > topOne && topTwo < topOne+heightOne,
-                leftBottom = leftTwo > leftOne && leftTwo < leftOne+widthOne  && topTwo+heightTwo > topOne && topTwo+heightTwo < topOne+heightOne,
-                rightBottom = leftTwo+widthTwo > leftOne && leftTwo+widthTwo < leftOne+widthOne  && topTwo+heightTwo > topOne && topTwo+heightTwo < topOne+heightOne;
+            let leftTop = leftTwo > leftOne && leftTwo < leftOne + widthOne && topTwo > topOne && topTwo < topOne + heightOne,
+                rightTop = leftTwo + widthTwo > leftOne && leftTwo + widthTwo < leftOne + widthOne && topTwo > topOne && topTwo < topOne + heightOne,
+                leftBottom = leftTwo > leftOne && leftTwo < leftOne + widthOne && topTwo + heightTwo > topOne && topTwo + heightTwo < topOne + heightOne,
+                rightBottom = leftTwo + widthTwo > leftOne && leftTwo + widthTwo < leftOne + widthOne && topTwo + heightTwo > topOne && topTwo + heightTwo < topOne + heightOne;
             return leftTop || rightTop || leftBottom || rightBottom;
         }
 
-        $(document).ready(function(){
+        $(document).ready(function () {
             //var socket = io({transports:['websocket']});
             var socket = io();
 
@@ -281,9 +63,9 @@
             var temp_dropped = null;
             var playerId = null;
             var activePlayerComponents = [];
-            activePlayerComponents["next_stone_button"]="next_stone_button"
+            activePlayerComponents["next_stone_button"] = "next_stone_button"
 
-            socket.on('tempSpace', function(msg) {
+            socket.on('tempSpace', function (msg) {
                 $('#tempSpace').empty()
 
 
@@ -293,13 +75,13 @@
                 for (let i = 0; i < msg.data.length; i++) {
                     let col = $('<td>').addClass('deck_col');
                     let stone = msg.data[i]
-                    clickIds[i]="temp_"+stone.id
+                    clickIds[i] = "temp_" + stone.id
                     let text = ''
-                    if (stone.value==0){
-                            text = text +
+                    if (stone.value == 0) {
+                        text = text +
                             "<div class='joker' style='display: table;' id='temp_" +
                             stone.id + "'><div style='display: table-cell; vertical-align: middle;'>&nbsp;</div></div>";
-                    }else {
+                    } else {
                         text = text +
                             "<div class='" + stone.color.toLowerCase() + "_stone' style='display: table;' id='temp_" +
                             stone.id + "'><div style='display: table-cell; vertical-align: middle;'>" + stone.value + "</div></div>";
@@ -310,14 +92,14 @@
                 }
                 table.append(row);
                 $('#tempSpace').append(table);
-                if (temp_dropped!=null){
-                    $('#'+temp_dropped).remove();
+                if (temp_dropped != null) {
+                    $('#' + temp_dropped).remove();
                     temp_dropped = null;
                 }
 
-                for (let i=0;i<clickIds.length;i++){
-                    $("#"+clickIds[i]).click(function(){
-                        socket.emit('pick_from_temp_space', {stone: this.id.substring("temp_".length,this.id.length+1)});
+                for (let i = 0; i < clickIds.length; i++) {
+                    $("#" + clickIds[i]).click(function () {
+                        socket.emit('pick_from_temp_space', {stone: this.id.substring("temp_".length, this.id.length + 1)});
                         return false;
                     });
                 }
@@ -325,11 +107,11 @@
             });
 
 
-            socket.on('connect', function() {
-               socket.emit('list_games');
+            socket.on('connect', function () {
+                socket.emit('list_games');
             });
 
-            socket.on('getdeck', function(msg) {
+            socket.on('getdeck', function (msg) {
                 $('#mydeck').empty();
                 $('#list_all_games').empty();
 
@@ -337,114 +119,110 @@
 
                 let pile = msg.data
 
-
                 for (let j = 0; j < pile.length; j++) {
                     let text = createStoneDiv(pile[j]);
-
                     $('#mydeck').append(text);
-
                 }
 
                 pile = msg.data
                 for (let j = 0; j < pile.length; j++) {
-                    $( "#draggable_"+pile[j].id ).draggable();
+                    $("#draggable_" + pile[j].id).draggable();
                 }
             });
 
 
-            socket.on('next_stone', function(msg) {
+            socket.on('next_stone', function (msg) {
                 let stone = msg.data
                 let text = createStoneDiv(stone);
 
                 $('#mydeck').append(text);
-                $( "#draggable_"+stone.id ).draggable();
+                $("#draggable_" + stone.id).draggable();
 
             });
 
-            socket.on('init_game', function(msg) {
+            socket.on('init_game', function (msg) {
                 $('#game_id').val(msg.data);
             });
 
-            socket.on('connection', function() {
-                //this.join("test");
-                //socket.io.join("test");
+            socket.on('disconnect', (reason) => {
+              if (reason === 'io server disconnect') {
+                // the disconnection was initiated by the server, you need to reconnect manually
+                socket.connect();
+              }
+              // else the socket will automatically try to reconnect
             });
 
+            socket.on('next_player', function (msg) {
 
-            socket.on('next_player', function(msg) {
-
-                if (playerId!=msg.next_player){
+                if (playerId != msg.next_player) {
                     let keys = Object.keys(activePlayerComponents)
-                    for (let i=0;i<keys.length;i++){
-                        $('#'+keys[i]).hide();
+                    for (let i = 0; i < keys.length; i++) {
+                        $('#' + keys[i]).hide();
                     }
                     $("#next_stone_button").hide();
-                }else{
+                } else {
                     let keys = Object.keys(activePlayerComponents)
-                    for (let i=0;i<keys.length;i++){
-                        $('#'+keys[i]).show();
+                    for (let i = 0; i < keys.length; i++) {
+                        $('#' + keys[i]).show();
                     }
                     $("#next_stone_button").show();
                 }
             });
 
-
-
-
-            socket.on('finishArea_others', function(msg) {
+            socket.on('finishArea_others', function (msg) {
                 $('#finishArea_others').empty()
                 let keys = Object.keys(msg.data);
 
-                for (let a=0;a<keys.length;a++){
+                for (let a = 0; a < keys.length; a++) {
                     let playerField = msg.data[keys[a]];
-                    $('#finishArea_others').append("<div class='playerName'>Player "+msg.names[keys[a]]+"</div>");
+                    $('#finishArea_others').append("<div class='playerName'>Player " + msg.names[keys[a]] + "</div>");
                     let jokers = [];
                     let jokersId = [];
-                    for (let i=0;i<playerField.length;i++){
+                    for (let i = 0; i < playerField.length; i++) {
                         let serie = playerField[i];
                         var table = $('<table>').addClass('finish_table');
                         var row = $('<tr>').addClass('finish_row');
-                        for (let j=0;j<serie.length;j++){
+                        for (let j = 0; j < serie.length; j++) {
                             var dockElement = null;
-                            if (j==0 || j==serie.length-1){
+                            if (j == 0 || j == serie.length - 1) {
                                 dockElement = $('<td>').addClass('finish_col');
-                                let appendix="_end";
-                                if (j==0)
-                                    appendix="_start";
-                                let id = "o_droppable_series_"+i+"_"+a+"_"+appendix;
+                                let appendix = "_end";
+                                if (j == 0)
+                                    appendix = "_start";
+                                let id = "o_droppable_series_" + i + "_" + a + "_" + appendix;
                                 let text =
-                                    "<div id='"+id+"' class='ui-widget-header' style='width:30px;height:30px;float:left;border-width: 1px;border-color: #FEFEFE'>" +
+                                    "<div id='" + id + "' class='ui-widget-header' style='width:30px;height:30px;float:left;border-width: 1px;border-color: #FEFEFE'>" +
                                     "<span style='padding:5px;position:absolute'>&nbsp;</span></div>";
-                                    dockElement.append(text);
+                                dockElement.append(text);
 
-                                activePlayerComponents[id]=id
+                                activePlayerComponents[id] = id
 
 
                             }
 
-                            if (j==0){
+                            if (j == 0) {
                                 row.append(dockElement);
                             }
                             var col = $('<td>').addClass('finish_col');
                             let stone = serie[j]
                             let text = ''
 
-                            if (stone.value==0){ //Joker
-                                let id= "o_droppable_series_"+i+"_"+a+"_"+stone.id;
-                                text = "<div id='"+id+"' class='ui-widget-header joker' style='display: table;'>" +
+                            if (stone.value == 0) { //Joker
+                                let id = "o_droppable_series_" + i + "_" + a + "_" + stone.id;
+                                text = "<div id='" + id + "' class='ui-widget-header joker' style='display: table;'>" +
                                     "<div style='display: table-cell; vertical-align: middle;'>&nbsp;</div></div>";
                                 jokers.push(id)
                                 jokersId.push(stone.id)
-                                activePlayerComponents[id]=id
-                            }else{
+                                activePlayerComponents[id] = id
+                            } else {
                                 text = text +
-                                    "<div class='"+stone.color.toLowerCase()+"_stone' style='display: table;'><div style='display: table-cell; vertical-align: middle;'>"+stone.value+"</div></div>";
+                                    "<div class='" + stone.color.toLowerCase() + "_stone' style='display: table;'><div style='display: table-cell; vertical-align: middle;'>" + stone.value + "</div></div>";
                             }
 
                             col.append(text);
                             row.append(col);
 
-                            if (j==serie.length-1){
+                            if (j == serie.length - 1) {
                                 row.append(dockElement);
                             }
 
@@ -454,33 +232,47 @@
 
                     }
 
-                    for (let i=0;i<jokers.length;i++){
+                    for (let i = 0; i < jokers.length; i++) {
                         let currentKey = keys[a]
-                        $( "#"+jokers[i]).droppable({
-                            drop: function( event, ui ) {
+                        $("#" + jokers[i]).droppable({
+                            drop: function (event, ui) {
                                 socket.emit('replace_joker',
-                                    {'stone':removeDraggable(ui.draggable[0].id),'playerId':currentKey, 'joker':jokersId[i]});
-                                $("#"+ui.draggable[0].id).remove()
+                                    {
+                                        'stone': removeDraggable(ui.draggable[0].id),
+                                        'playerId': currentKey,
+                                        'joker': jokersId[i]
+                                    });
+                                $("#" + ui.draggable[0].id).remove()
                             }
                         });
                     }
 
-                    for (let i=0;i<playerField.length;i++) {
+                    for (let i = 0; i < playerField.length; i++) {
                         let listindex = i
                         let currentKey = keys[a]
                         let playerIndex = a
-                        $( "#o_droppable_series_"+i+"_"+playerIndex+"_"+'_start').droppable({
-                            drop: function( event, ui ) {
-                                socket.emit('add_stone', {'stone':removeDraggable(ui.draggable[0].id),'row':listindex,'appendix':'_start','playerId':currentKey});
+                        $("#o_droppable_series_" + i + "_" + playerIndex + "_" + '_start').droppable({
+                            drop: function (event, ui) {
+                                socket.emit('add_stone', {
+                                    'stone': removeDraggable(ui.draggable[0].id),
+                                    'row': listindex,
+                                    'appendix': '_start',
+                                    'playerId': currentKey
+                                });
 
-                                $("#"+ui.draggable[0].id).remove()
+                                $("#" + ui.draggable[0].id).remove()
                             }
                         });
-                        $( "#o_droppable_series_"+i+"_"+playerIndex+"_"+'_end').droppable({
-                            drop: function( event, ui ) {
-                                socket.emit('add_stone', {'stone':removeDraggable(ui.draggable[0].id),'row':listindex,'appendix':'_end','playerId':currentKey});
+                        $("#o_droppable_series_" + i + "_" + playerIndex + "_" + '_end').droppable({
+                            drop: function (event, ui) {
+                                socket.emit('add_stone', {
+                                    'stone': removeDraggable(ui.draggable[0].id),
+                                    'row': listindex,
+                                    'appendix': '_end',
+                                    'playerId': currentKey
+                                });
 
-                                $("#"+ui.draggable[0].id).remove()
+                                $("#" + ui.draggable[0].id).remove()
                             }
                         });
                     }
@@ -489,52 +281,42 @@
 
             });
 
-            socket.on('game_message', function(msg) {
+            socket.on('game_message', function (msg) {
                 $('#gameMessage').empty()
                 message = msg.data;
                 $('#gameMessage').append(message);
             });
 
-            socket.on('requestDeck', function() {
+            socket.on('requestDeck', function () {
                 socket.emit('fetchdeck');
             });
 
 
-            socket.on('remaining_piles', function(msg) {
+            socket.on('remaining_piles', function (msg) {
                 $('#remaining_piles').empty()
                 let piles = msg.data
                 for (let i = 0; i < piles.length; i++) {
                     let text =
-                    "<div style='width:7px;height:7px;float:left;background-color:#CCCCCC;margin:2px'></div>";
+                        "<div style='width:7px;height:7px;float:left;background-color:#CCCCCC;margin:2px'></div>";
                     $('#remaining_piles').append(text);
                 }
             });
 
-            socket.on('list_all_games', function(msg) {
+            socket.on('list_all_games', function (msg) {
                 $('#list_all_games').empty()
                 let stats_entry_keys = Object.keys(msg)
-                if (stats_entry_keys.length==0){
+                if (stats_entry_keys.length == 0) {
                     return
                 }
                 let table = $('<table>').addClass('games_table');
                 let hrow = $('<tr>').addClass('games_hrow');
-                let hcol = $('<th>').addClass('games_hcol');
-                hcol.append("Spiel-Id");
-                hrow.append(hcol);
 
-
-
-                hcol = $('<th>').addClass('games_hcol');
-                hcol.append("Anzahl Spieler");
-                hrow.append(hcol);
-
-                hcol = $('<th>').addClass('games_hcol');
-                hcol.append("Aktive Spieler");
-                hrow.append(hcol);
-
-                hcol = $('<th>').addClass('games_hcol');
-                hcol.append("Status");
-                hrow.append(hcol);
+                let headers = ["Spiel-Id","Anzahl Spieler","Aktive Spieler","Status"];
+                for (let i=0;i<headers.length;i++){
+                    let hcol = $('<th>').addClass('games_hcol');
+                    hcol.append(headers[i]);
+                    hrow.append(hcol);
+                }
 
                 table.append(hrow);
 
@@ -544,34 +326,23 @@
 
                     let col = $('<td>').addClass('games_col');
                     let text =
-                        "<div style='margin:2px;float:left'>"+stats_entry['id']+"</div>";
+                        "<div style='margin:2px;float:left'>" + stats_entry['id'] + "</div>";
                     col.append(text);
-                    col.click(function(){
+                    col.click(function () {
 
                         $('#game_id').val(stats_entry['id']);
                         return false;
                     });
                     row.append(col);
 
-
-                    col = $('<td>').addClass('games_col');
-                    text =
-                    "<div style='margin:2px;float:left'>"+stats_entry['num_players']+"</div>";
-                    col.append(text);
-                    row.append(col)
-
-                    col = $('<td>').addClass('games_col');
-                    text =
-                    "<div style='margin:2px;float:left'>"+stats_entry['joined']+"</div>";
-                    col.append(text);
-                    row.append(col)
-
-                    col = $('<td>').addClass('games_col');
-                    text =
-                    "<div style='margin:2px;float:left'>"+stats_entry['status']+"</div>";
-                    col.append(text);
-                    row.append(col)
-
+                    let values = [stats_entry['num_players'],stats_entry['joined'],stats_entry['status']];
+                    for (j=0;j<values.length;j++){
+                        col = $('<td>').addClass('games_col');
+                        text =
+                            "<div style='margin:2px;float:left'>" + values[j] + "</div>";
+                        col.append(text);
+                        row.append(col);
+                    }
 
                     table.append(row);
                 }
@@ -579,75 +350,46 @@
                 $('#list_all_games').append(table);
             });
 
-            socket.on('stats', function(msg) {
+            socket.on('stats', function (msg) {
                 $('#stats').empty()
                 let stats_entry_keys = Object.keys(msg)
                 let table = $('<table>').addClass('stats_table');
                 let hrow = $('<tr>').addClass('stats_hrow');
-                let hcol = $('<th>').addClass('stats_hcol');
-                hcol.append("SpielerIn");
-                hrow.append(hcol);
 
-                hcol = $('<th>').addClass('stats_hcol');
-                hcol.append("Punkte gesamt");
-                hrow.append(hcol);
-
-                hcol = $('<th>').addClass('stats_hcol');
-                hcol.append("davon ausgelegt");
-                hrow.append(hcol);
-
-                hcol = $('<th>').addClass('stats_hcol');
-                hcol.append("davon angelegt");
-                hrow.append(hcol);
-
-                hcol = $('<th>').addClass('stats_hcol');
-                hcol.append("davon in der Hand");
-                hrow.append(hcol);
-
+                let headers = ["SpielerIn","Punkte gesamt","davon ausgelegt","davon angelegt","davon in der Hand"]
+                for (let i=0;i<headers.length;i++){
+                    let hcol = $('<th>').addClass('stats_hcol');
+                    hcol.append(headers[i]);
+                    hrow.append(hcol);
+                }
                 table.append(hrow);
 
                 for (let i = 0; i < stats_entry_keys.length; i++) {
                     let stats_entry = msg[stats_entry_keys[i]];
                     let row = $('<tr>').addClass('stats_row');
-
                     let col = $('<td>').addClass('stats_col');
                     let text = "";
-                    if (stats_entry['has_finished']==true){
+
+                    if (stats_entry['has_finished'] == true) {
                         text =
-                        "<div style='margin:2px;float:left;font-weight: bolder'>"+stats_entry['player']+"*</div>";
-                        col.append(text);
-                        row.append(col);
-                    }else{
+                            "<div style='margin:2px;float:left;font-weight: bolder'>" + stats_entry['player'] + "*</div>";
+                    } else {
                         text =
-                        "<div style='margin:2px;float:left'>"+stats_entry['player']+"</div>";
+                            "<div style='margin:2px;float:left'>" + stats_entry['player'] + "</div>";
+                    }
+                    col.append(text);
+                    row.append(col);
+
+                    let values = [stats_entry['total'],stats_entry['finished'],stats_entry['added'],stats_entry['still_in_deck']]
+
+                    for (let j=0;j<values.length;j++){
+                        col = $('<td>').addClass('stats_col');
+                        text =
+                            "<div style='margin:2px;float:left'>" + values[j] + "</div>";
                         col.append(text);
-                        row.append(col);
+                        row.append(col)
                     }
 
-
-                    col = $('<td>').addClass('stats_col');
-                    text =
-                    "<div style='margin:2px;float:left'>"+stats_entry['total']+"</div>";
-                    col.append(text);
-                    row.append(col)
-
-                    col = $('<td>').addClass('stats_col');
-                    text =
-                    "<div style='margin:2px;float:left'>"+stats_entry['finished']+"</div>";
-                    col.append(text);
-                    row.append(col)
-
-                    col = $('<td>').addClass('stats_col');
-                    text =
-                    "<div style='margin:2px;float:left'>"+stats_entry['added']+"</div>";
-                    col.append(text);
-                    row.append(col)
-
-                    col = $('<td>').addClass('stats_col');
-                    text =
-                    "<div style='margin:2px;float:left'>"+stats_entry['still_in_deck']+"</div>";
-                    col.append(text);
-                    row.append(col)
 
                     table.append(row);
                 }
@@ -655,159 +397,145 @@
                 $('#stats').append(table);
             });
 
-            $('form#next_stone').submit(function(event) {
+            $('form#next_stone').submit(function (event) {
                 socket.emit('next_stone');
                 //$("#next_stone_button").hide();
                 return false;
             });
 
-            $('form#init_game').submit(function(event) {
+            $('form#init_game').submit(function (event) {
                 socket.emit('init_game', {data: $('#nr_players').val()});
                 return false;
             });
 
-            $('form#getdeck').submit(function(event) {
+            $('form#getdeck').submit(function (event) {
                 socket.emit('getdeck', {gameId: $('#game_id').val(), playerName: $('#player_name').val()});
                 return false;
             });
 
-            $('form#print_stats').submit(function(event) {
+            $('form#print_stats').submit(function (event) {
                 socket.emit('print_stats');
                 return false;
             });
 
 
-
-            $('form#publish_stones').submit(function(event) {
+            $('form#publish_stones').submit(function (event) {
                 /*
                 check for overlap with drop zone
                  */
-                console.log($("#drop_zone").offset());
-                console.log($("#drop_zone").width());
-                console.log($("#drop_zone").height());
+
                 consolidatedDropspace = [];
 
-                for (let i=0;i<dropspace.length;i++){
-                    console.log($("#draggable_"+dropspace[i]).text());
-                    console.log($("#draggable_"+dropspace[i]).offset());
-                    console.log($("#draggable_"+dropspace[i]).width());
-                    console.log($("#draggable_"+dropspace[i]).height());
-
-                    console.log("overlaps:"+isOverlap('#drop_zone',"#draggable_"+dropspace[i]));
-
-                    if (isOverlap('#drop_zone',"#draggable_"+dropspace[i])){
+                for (let i = 0; i < dropspace.length; i++) {
+                    if (isOverlap('#drop_zone', "#draggable_" + dropspace[i])) {
                         consolidatedDropspace.push(dropspace[i]);
                     }
                 }
 
-                consolidatedDropspace.sort(function(a, b){
-                    return $("#draggable_"+a).offset().left-$("#draggable_"+b).offset().left
+                consolidatedDropspace.sort(function (a, b) {
+                    return $("#draggable_" + a).offset().left - $("#draggable_" + b).offset().left
                 });
 
-                
-
                 socket.emit('publish_stones', {data: consolidatedDropspace});
-                for (let i=0;i<consolidatedDropspace.length;i++){
-                    $("#draggable_"+consolidatedDropspace[i]).remove()
+                for (let i = 0; i < consolidatedDropspace.length; i++) {
+                    $("#draggable_" + consolidatedDropspace[i]).remove()
                 }
-                dropspace=[];
+                dropspace = [];
                 consolidatedDropspace = [];
                 return false;
             });
 
-            $( "#droppable" ).droppable({
-              drop: function( event, ui ) {
-                socket.emit('droppedstone',{data:ui.draggable[0].id});
-                $( this )
-                  .addClass( "ui-state-highlight" )
-                  .find( "p" )
-                    .html( "Dropped!" );
-              }
+            $("#droppable").droppable({
+                drop: function (event, ui) {
+                    socket.emit('droppedstone', {data: ui.draggable[0].id});
+                    $(this)
+                        .addClass("ui-state-highlight")
+                        .find("p")
+                        .html("Dropped!");
+                }
             });
 
-            $( "#droppable_temp" ).droppable({
-              drop: function( event, ui ) {
+            $("#droppable_temp").droppable({
+                drop: function (event, ui) {
                     temp_dropped = ui.draggable[0].id
-                    socket.emit('droppedstone_temp',{data:ui.draggable[0].id});
+                    socket.emit('droppedstone_temp', {data: ui.draggable[0].id});
 
-              }
+                }
             });
 
-            $( "#drop_zone" ).droppable({
-              drop: function( event, ui ) {
-                  dropspace.push(removeDraggable(ui.draggable[0].id))
-              }
+            $("#drop_zone").droppable({
+                drop: function (event, ui) {
+                    dropspace.push(removeDraggable(ui.draggable[0].id))
+                }
             });
-
 
 
         });
-
 
 
     </script>
 </head>
 <body>
 
-    <div id="gameMessage">Nachrichtenbox</div>
+<div id="gameMessage">Nachrichtenbox</div>
 
-    <div id="startForms">
-        <div id="initGameForm">
-            <form id="init_game" method="POST" action='#'>
-                <div class="form__group field">
-                    <input type="text"  name="nr_players" id="nr_players" placeholder="Anzahl Spieler">
-                    <input type="submit" value="Bereite Spiel vor">
-                </div>
+<div id="startForms">
+    <div id="initGameForm">
+        <form id="init_game" method="POST" action='#'>
+            <div class="form__group field">
+                <input type="text" name="nr_players" id="nr_players" placeholder="Anzahl Spieler">
+                <input type="submit" value="Bereite Spiel vor">
+            </div>
 
-            </form>
-        </div>
-
-        <div id="getDeckForm">
-            <form id="getdeck" method="POST" action='#'>
-                <input type="text" name="game_id" id="game_id" placeholder="Spiel Code">
-                <input type="text" name="player_name" id="player_name" placeholder="Name der SpielerIn ">
-                <input type="submit" value="Starte Spiel">
-            </form>
-        </div>
-        <div id="statsButton">
-            <form id="print_stats" method="POST" action='#'>
-                <input id="print_stats" type="submit" value="Stats">
-            </form>
-        </div>
-    </div>
-
-    <div id="list_all_games" style="width:auto;float:left;margin-left:30px"></div>
-
-
-    <div style="clear:both;margin-top:20px;">
-        <div id="remaining_piles" style="width:150px;float:left;"></div>
-
-        <div id="droppable_temp">
-             <span style="color:#AAAAAA;font-style: normal;font-weight: normal">Runde beenden</span>
-        </div>
-
-        <div id="tempSpace" style="float:left;clear:right;width:auto"></div>
-
-         <form id="next_stone" method="POST" action='#' style="clear:both;margin-top:20px">
-            <input id="next_stone_button" type="submit" value="Stein abheben">
         </form>
     </div>
 
+    <div id="getDeckForm">
+        <form id="getdeck" method="POST" action='#'>
+            <input type="text" name="game_id" id="game_id" placeholder="Spiel Code">
+            <input type="text" name="player_name" id="player_name" placeholder="Name der SpielerIn ">
+            <input type="submit" value="Starte Spiel">
+        </form>
+    </div>
+    <div id="statsButton">
+        <form id="print_stats" method="POST" action='#'>
+            <input id="print_stats" type="submit" value="Stats">
+        </form>
+    </div>
+</div>
 
-    <div id="deck_zone">
-        <div id="mydeck" style="width:200px;float:left;margin-right:20px"></div>
+<div id="list_all_games" style="width:auto;float:left;margin-left:30px"></div>
 
-         <div id="drop_zone">
-             <div id="drop_zone_text">Auslagefl&auml;che</div>
-             <form id="publish_stones" method="POST" action='#'>
-                <input type="submit" value="Ablegen">
-            </form>
-         </div>
+
+<div style="clear:both;margin-top:20px;">
+    <div id="remaining_piles" style="width:150px;float:left;"></div>
+
+    <div id="droppable_temp">
+        <span style="color:#AAAAAA;font-style: normal;font-weight: normal">Runde beenden</span>
     </div>
 
-     <div id="finishArea_others"></div>
+    <div id="tempSpace" style="float:left;clear:right;width:auto"></div>
 
-    <div id="stats" style="width:auto;float:left;clear:both;margin-top:10px;"></div>
+    <form id="next_stone" method="POST" action='#' style="clear:both;margin-top:20px">
+        <input id="next_stone_button" type="submit" value="Stein abheben">
+    </form>
+</div>
+
+
+<div id="deck_zone">
+    <div id="mydeck" style="width:200px;float:left;margin-right:20px"></div>
+
+    <div id="drop_zone">
+        <div id="drop_zone_text">Auslagefl&auml;che</div>
+        <form id="publish_stones" method="POST" action='#'>
+            <input type="submit" value="Ablegen">
+        </form>
+    </div>
+</div>
+
+<div id="finishArea_others"></div>
+
+<div id="stats" style="width:auto;float:left;clear:both;margin-top:10px;"></div>
 
 
 </body>

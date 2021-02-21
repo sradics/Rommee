@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
 
 
-socketio = SocketIO(app ,cors_allowed_origins="*",ping_timeout=20,http_compression=False)
+socketio = SocketIO(app ,cors_allowed_origins="*",ping_timeout=120,http_compression=False)
 
 
 games = {}

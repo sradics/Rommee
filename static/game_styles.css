@@ -1,0 +1,244 @@
+:root {
+    --main-bg-color: #0C0032;
+    --main-highlight-color: #3500D3;
+    --decent-bg-color: #282828;
+    --decent-highlight-color: #240090;
+    --decent-color: #190061;
+    --main-font-color: #FFFFFF;
+}
+
+body {
+    font-family: 'Zilla Slab', serif;
+    font-weight: 300;
+    font-color: var(--main-font-color);
+    background-color: var(--main-bg-color);
+    margin-left: 40px;
+    margin-top: 20px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Karla', sans-serif;
+    font-weight: 400;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+input[type="submit"] {
+    appearance: none;
+    -webkit-appearance: none;
+    font-family: 'Karla', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    padding: 2px;
+    color: var(--main-font-color);
+    background-color: var(--decent-bg-color);
+    border: none;
+    border-radius: 5px;
+}
+
+input[type="submit"]:hover {
+    border: 1px solid #aaa;
+}
+
+input[type="text"] {
+    font-family: 'Karla', sans-serif;
+    font-weight: normal;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--main-font-color);
+    background-color: var(--main-bg-color);
+    border-width: 0px;
+    outline: 0;
+    padding: 2px;
+    border-bottom-width: 1px;
+    box-shadow: 0 0 22px 1px #88a4b7;
+}
+
+input[type=text]:focus {
+    background-color: var(--decent-highlight-color);
+}
+
+table.stats_table, table.games_table {
+    border: 1px solid;
+    border-color: var(--decent-bg-color);
+    border-collapse: collapse;
+    padding: 10px;
+    margin-top: 5px;
+    color: var(--main-font-color);
+    background-color: var(--decent-highlight-color);
+    font-size: small;
+}
+
+th {
+    background-color: var(--decent-color);
+}
+
+table.deck_table {
+    padding: 0px;
+    margin-top: 5px;
+    color: var(--main-font-color);
+}
+
+table.deck_table td {
+    background-color: var(--main-font-color);
+    /*padding: 10px;*/
+    font-size: large;
+}
+
+table.finish_table td {
+    background-color: var(--main-font-color);
+    padding: 5px;
+    /*
+    padding-left:7px;
+    padding-right:7px;
+     */
+
+    font-size: large;
+}
+
+
+table.stats_table {
+
+}
+
+
+table.games_table {
+    margin-top: 0px;
+}
+
+#gameMessage {
+    width: 250px;
+    padding: 0.5em;
+    float: left;
+    background-color: var(--decent-color);
+    float: left;
+    color: var(--main-font-color);
+    margin-bottom: 5px;
+    box-shadow: 0 0 22px 1px #88a4b7;
+
+}
+
+.joker {
+    background-image: url("joker_2.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center;
+}
+
+.green_stone {
+    color: white;
+    background-color: forestgreen;
+}
+
+.blue_stone {
+    color: white;
+    background-color: dodgerblue;
+}
+
+.red_stone {
+    color: white;
+    background-color: indianred;
+}
+
+.black_stone {
+    color: white;
+    background-color: #282828;
+}
+
+.black_stone, .red_stone, .blue_stone, .green_stone, .joker {
+    width: 40px;
+    height: 40px;
+    float: left
+}
+
+#startForms {
+    float: left;
+    margin-left: 50px;
+    alignment: left;
+    margin-bottom: 10px;
+}
+
+#initGameForm {
+    float: left;
+    maring-bottom: 3px;
+}
+
+#getDeckForm {
+    clear: both;
+}
+
+#statsButton {
+    margin-top: 10px;
+    clear: both;
+}
+
+#finishArea_others {
+    width: auto;
+    float: left;
+    clear: both;
+    border-width: 10px;
+    font-color: var(--main-font-color);
+    background-color: var(--main-highlight-color);
+    box-shadow: 0 0 22px 1px #88a4b7;
+    padding: 20px;
+    margin-top: 20px;
+    min-width: 300px;
+}
+
+#list_all_games {
+    margin-top: 5px;
+    margin-bottom: 10px;
+}
+
+td {
+    text-align: center;
+    vertical-align: bottom;
+}
+
+div.playerName {
+    color: var(--main-font-color);
+}
+
+#deck_zone {
+    margin-top: 20px;
+}
+
+#drop_zone {
+    width: 500px;
+    float: left;
+    background-color: var(--main-highlight-color);
+    box-shadow: 0 0 22px 1px #88a4b7;
+}
+
+#drop_zone_text {
+    margin-bottom: 30px;
+    color: var(--main-font-color);
+}
+
+
+#draggable {
+    width: 150px;
+    height: 150px;
+    padding: 0.5em;
+}
+
+#droppable {
+    width: 150px;
+    height: 150px;
+    padding: 0.5em;
+    float: left;
+    margin: 10px;
+}
+
+#droppable_temp {
+    width: 60px;
+    height: 50px;
+    padding: 0.5em;
+    float: left;
+    margin-left: 10px;
+    margin-right: 10px;
+    box-shadow: 0 0 22px 1px #88a4b7;
+    background-color: var(--main-highlight-color);
+}
