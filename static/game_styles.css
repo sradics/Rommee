@@ -176,7 +176,8 @@ table.games_table {
 .black_stone, .red_stone, .blue_stone, .green_stone, .joker {
     width: 40px;
     height: 40px;
-    float: left
+    float: left;
+    position:relative;
 }
 
 #startForms {

@@ -4,9 +4,9 @@
     <title>Rommee</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="https://fonts.googleapis.com/css?family=Karla:400,700|Zilla+Slab:300" rel="stylesheet">
-    <link rel="stylesheet" href="static/game_styles.css?id=12346rfsrs39">
+    <link rel="stylesheet" href="static/game_styles.css?id=12346rfsfrs39">
     <link rel="stylesheet" href="static/css-loader.css?id=1234">
-    <!--<link rel="stylesheet" href="static/draganddrop.css?id=1234">-->
+    <link rel="stylesheet" href="static/draganddrop.css?id=1234">
     <style>
 
     </style>
@@ -18,7 +18,7 @@
             crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"
             integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
-    <!--<script src="static/draganddrop.js"></script>-->
+    <script src="static/draganddrop.js"></script>
 
     <script type="text/javascript" charset="utf-8">
         function removeDraggable(toRemoveFrom) {
@@ -29,7 +29,7 @@
             let text = "";
             if (stone.value != 0) {
                 text =
-                    "<div id='draggable_" + stone.id + "' class='ui-widget-content " + stone.color.toLowerCase() + "_stone";
+                    "<div id='draggable_" + stone.id + "' class='ui-widget-content dragdrop " + stone.color.toLowerCase() + "_stone";
                 if (inTable){
                     text = text + " centerStone";
                 }
@@ -37,7 +37,7 @@
                     stone.value + "</span></div>";
             } else { //joker
                  text =
-                    "<div id='draggable_" + stone.id + "' class='ui-widget-content joker";
+                    "<div id='draggable_" + stone.id + "' class='ui-widget-content dragdrop joker";
                  if (inTable){
                     text = text + " centerStone";
                  }
@@ -87,24 +87,24 @@
                     let row = $('<tr>').addClass('sortTableRow')
                     for (j=0;j<numberOfColums;j++){
                         let col = $('<td>').addClass('sortTableColumn');
-                        let wrapperDiv = $('<div>').addClass('wrapper');
+                        let wrapperDiv = $('<div>').addClass('wrapper drop');
                         wrapperDiv.attr('id',"sorttable_"+i+"_"+j);
 
                         wrapperDiv.droppable({
                             drop: function (event, ui) {
-                                console.log(ui.draggable[0].id)
-                                $("#"+this.id).addClass("highlightColumn");
+                                console.log(ui[0].id)
+                                $("#"+event.target.id).addClass("highlightColumn");
                                 //$('#css_loader_screen').addClass('is-active');
                                 socket.emit('add_stone_position',
                                     {
-                                        stone: removeDraggable(ui.draggable[0].id),
-                                        position: this.id
+                                        stone: removeDraggable(ui[0].id),
+                                        position: event.target.id
                                 });
-                                $("#"+this.id).append($("#"+ui.draggable[0].id));
-                                let element = $("#"+ui.draggable[0].id)[0];
+                                $("#"+event.target.id).append($("#"+ui[0].id));
+                                let element = $("#"+ui[0].id)[0];
                                 element.style.setProperty("left","0px");
                                 element.style.setProperty("top","0px");
-                                element.style.setProperty("position","absolute");
+                                element.style.setProperty("position","relative");
                                 element.style.setProperty("padding-left","5px");
                                 element.style.setProperty("padding-top","5px");
                                 //element.style.setProperty("transform","translate(-50%, -50%)");
@@ -204,8 +204,27 @@
 
                 pile = msg.data
                 for (let j = 0; j < pile.length; j++) {
-                    $("#draggable_" + pile[j].id).draggable();
+                    //$("#draggable_" + pile[j].id).draggable();
                 }
+
+                /*$("#drop_zone").droppable({
+                drop: function (event, ui) {
+                    dropspace.push(removeDraggable(ui.draggable[0].id))
+                }
+                });*/
+
+                $('.dragdrop').draggable({
+                  //revert: true,
+                  placeholder: true,
+                  droptarget: '.drop',
+                  /*
+                  drop: function(evt, droptarget) {
+                    // $(this).appendTo(droptarget).draggable('destroy');
+                      dropspace.push(removeDraggable(this[0].id))
+                  }
+                  */
+
+                });
             });
 
 
@@ -216,7 +235,10 @@
                 let text = createStoneDiv(stone);
 
                 $('#mydeck').append(text);
-                $("#draggable_" + stone.id).draggable();
+                $("#draggable_" + stone.id).draggable({
+                  placeholder: true,
+                  droptarget: '.drop',
+                });
 
 
 
@@ -282,7 +304,7 @@
                                     appendix = "_start";
                                 let id = "o_droppable_series_" + i + "_" + a + "_" + appendix;
                                 let text =
-                                    "<div id='" + id + "' class='ui-widget-header' style='width:30px;height:30px;float:left;border-width: 1px;border-color: #FEFEFE'>" +
+                                    "<div id='" + id + "' class='ui-widget-header drop' style='width:30px;height:30px;float:left;border-width: 1px;border-color: #FEFEFE'>" +
                                     "<span style='padding:5px;position:absolute'>&nbsp;</span></div>";
                                 dockElement.append(text);
 
@@ -300,7 +322,7 @@
 
                             if (stone.value == 0) { //Joker
                                 let id = "o_droppable_series_" + i + "_" + a + "_" + stone.id;
-                                text = "<div id='" + id + "' class='ui-widget-header joker' style='display: table;'>" +
+                                text = "<div id='" + id + "' class='ui-widget-header joker drop' style='display: table;'>" +
                                     "<div style='display: table-cell; vertical-align: middle;'>&nbsp;</div></div>";
                                 jokers.push(id)
                                 jokersId.push(stone.id)
@@ -329,11 +351,11 @@
                             drop: function (event, ui) {
                                 socket.emit('replace_joker',
                                     {
-                                        'stone': removeDraggable(ui.draggable[0].id),
+                                        'stone': removeDraggable(ui[0].id),
                                         'playerId': currentKey,
                                         'joker': jokersId[i]
                                     });
-                                $("#" + ui.draggable[0].id).remove()
+                                $("#" + ui[0].id).remove()
                             }
                         });
                     }
@@ -345,25 +367,25 @@
                         $("#o_droppable_series_" + i + "_" + playerIndex + "_" + '_start').droppable({
                             drop: function (event, ui) {
                                 socket.emit('add_stone', {
-                                    'stone': removeDraggable(ui.draggable[0].id),
+                                    'stone': removeDraggable(ui[0].id),
                                     'row': listindex,
                                     'appendix': '_start',
                                     'playerId': currentKey
                                 });
 
-                                $("#" + ui.draggable[0].id).remove()
+                                $("#" + ui[0].id).remove()
                             }
                         });
                         $("#o_droppable_series_" + i + "_" + playerIndex + "_" + '_end').droppable({
                             drop: function (event, ui) {
                                 socket.emit('add_stone', {
-                                    'stone': removeDraggable(ui.draggable[0].id),
+                                    'stone': removeDraggable(ui[0].id),
                                     'row': listindex,
                                     'appendix': '_end',
                                     'playerId': currentKey
                                 });
 
-                                $("#" + ui.draggable[0].id).remove()
+                                $("#" + ui[0].id).remove()
                             }
                         });
                     }
@@ -544,7 +566,7 @@
             $("#droppable").droppable({
                 drop: function (event, ui) {
                     $('#css_loader_screen').addClass('is-active');
-                    socket.emit('droppedstone', {data: ui.draggable[0].id});
+                    socket.emit('droppedstone', {data: ui[0].id});
                     $(this)
                         .addClass("ui-state-highlight")
                         .find("p")
@@ -554,18 +576,20 @@
 
             $("#droppable_temp").droppable({
                 drop: function (event, ui) {
-                    temp_dropped = ui.draggable[0].id
+                    temp_dropped = ui[0].id;
                     $('#css_loader_screen').addClass('is-active');
-                    socket.emit('droppedstone_temp', {data: ui.draggable[0].id});
+                    socket.emit('droppedstone_temp', {data: ui[0].id});
 
                 }
             });
 
             $("#drop_zone").droppable({
                 drop: function (event, ui) {
-                    dropspace.push(removeDraggable(ui.draggable[0].id))
+                    dropspace.push(removeDraggable(ui[0].id))
                 }
             });
+
+
 
 
         });
@@ -611,7 +635,7 @@
 <div style="clear:both;margin-top:20px;">
     <div id="remaining_piles" style="width:150px;float:left;"></div>
 
-    <div id="droppable_temp">
+    <div id="droppable_temp" class="drop">
         <span style="color:#AAAAAA;font-style: normal;font-weight: normal">Runde beenden</span>
     </div>
 
@@ -626,7 +650,7 @@
 <div id="deck_zone">
     <div id="mydeck" style="width:200px;float:left;margin-right:20px"></div>
 
-    <div id="drop_zone">
+    <div id="drop_zone" class="drop">
         <div id="drop_zone_text">Auslagefl&auml;che</div>
         <form id="publish_stones" method="POST" action='#'>
             <input type="submit" value="Ablegen">
@@ -636,7 +660,7 @@
 
 <div id="finishArea_others"></div>
 
-<div id="sortDeck"></div>
+<div id="sortDeck" class="drop"></div>
 
 
 
