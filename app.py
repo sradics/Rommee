@@ -91,6 +91,15 @@ def get_deck(message):
     if game_id != None and len(game_id)>0:
         join_room(game_id)
         game = games[game_id]
+
+        if session["player"] in game.playerDecks: #join existing game
+            session["current_game"] = game.gameId
+            fetch_deck()
+            refresh_temp_space()
+            refresh_finish_area_others()
+            send_game_message("Spieler " + game.playerNames[game.get_current_player()] + " ist am Zug", True, game)
+            return
+
         session["current_game"]=game.gameId
         deck = game.assign_player(session["player"])
         if deck == None:
@@ -286,9 +295,7 @@ def dropped_stone_temp(message):
             return
 
         game.add_stone_to_temp_space(stoneIdAsStr,session["player"])
-        response = {'data': game.tempSpace.space}
-        tempSpaceAsJson = json.dumps(response, cls=StoneEncoder)
-        emit('tempSpace', json.loads(tempSpaceAsJson), broadcast=True, room=game.gameId)
+        refresh_temp_space()
 
         if len(game.playerDecks[session["player"]])==0: #game finished
             game.finisher=session["player"]
@@ -306,6 +313,12 @@ def dropped_stone_temp(message):
         response = {'next_player': game.get_next_player()}
         emit('next_player', response, broadcast=True, room=game.gameId)
         send_game_message("Spieler "+game.playerNames[game.get_current_player()]+" ist am Zug",True,game)
+
+def refresh_temp_space():
+    game = games[session["current_game"]]
+    response = {'data': game.tempSpace.space}
+    tempSpaceAsJson = json.dumps(response, cls=StoneEncoder)
+    emit('tempSpace', json.loads(tempSpaceAsJson), broadcast=True, room=game.gameId)
 
 def sendGameFinishedMessage():
     send_game_message("Spiel beendet.", False, games[session["current_game"]])
