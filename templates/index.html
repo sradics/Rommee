@@ -111,6 +111,7 @@
 
             socket.on('connect', function () {
                 socket.emit('list_games');
+                $('#css_loader_screen').removeClass('is-active');
             });
 
             socket.on('getdeck', function (msg) {
