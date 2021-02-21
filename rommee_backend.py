@@ -40,6 +40,7 @@ class Game:
             for num in list(range(0, len(playerDeck))):
                 stoneInDeck = playerDeck[num]
                 if stoneInDeck.id == stone:
+                    stoneInDeck.position=None
                     newArea.append(playerDeck.pop(num))
                     break
 
@@ -52,6 +53,7 @@ class Game:
         for num in list(range(0, len(playerDeck))):
             stoneInDeck = playerDeck[num]
             if stoneInDeck.id == stoneId:
+                stoneInDeck.position=None
                 self.tempSpace.add_stone(playerDeck.pop(num))
                 break
 
