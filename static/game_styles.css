@@ -71,6 +71,10 @@ table.stats_table, table.games_table {
     font-size: small;
 }
 
+.hideOnStart{
+    display: none;
+}
+
 th {
     background-color: var(--decent-color);
 }

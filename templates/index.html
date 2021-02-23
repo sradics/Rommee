@@ -4,7 +4,7 @@
     <title>Rommee</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="https://fonts.googleapis.com/css?family=Karla:400,700|Zilla+Slab:300" rel="stylesheet">
-    <link rel="stylesheet" href="static/game_styles.css?id=12346rfsfrs39">
+    <link rel="stylesheet" href="static/game_styles.css?id=12346rfsfds39">
     <link rel="stylesheet" href="static/css-loader.css?id=1234">
     <link rel="stylesheet" href="static/draganddrop.css?id=1234">
     <style>
@@ -402,6 +402,7 @@
             });
 
             socket.on('requestDeck', function () {
+                $(".hideOnStart").removeClass("hideOnStart")
                 socket.emit('fetchdeck');
             });
 
@@ -619,20 +620,20 @@
             <input type="submit" value="Starte Spiel">
         </form>
     </div>
-    <div id="statsButton">
+    <div id="statsButton" class="hideOnStart">
         <form id="print_stats" method="POST" action='#'>
             <input id="print_stats" type="submit" value="Stats">
         </form>
     </div>
 </div>
 
-<div id="statistikInfo" style="float:left;margin-left:30px">
+<div id="statistikInfo" style="float:left;margin-left:30px" class="hideOnStart">
     <div id="stats" style="width:auto;float:left;clear:right"></div>
     <div id="list_all_games" style="width:auto;float:left"></div>
 </div>
 
 
-<div style="clear:both;margin-top:20px;">
+<div style="clear:both;margin-top:20px;" class="hideOnStart">
     <div id="remaining_piles" style="width:150px;float:left;"></div>
 
     <div id="droppable_temp" class="drop">
@@ -647,7 +648,7 @@
 </div>
 
 
-<div id="deck_zone">
+<div id="deck_zone" class="hideOnStart">
     <div id="mydeck" style="width:200px;float:left;margin-right:20px"></div>
 
     <div id="drop_zone" class="drop">
@@ -658,9 +659,9 @@
     </div>
 </div>
 
-<div id="finishArea_others"></div>
+<div id="finishArea_others" class="hideOnStart"></div>
 
-<div id="sortDeck" class="drop"></div>
+<div id="sortDeck" class="drop hideOnStart"></div>
 
 
 
