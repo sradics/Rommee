@@ -73,8 +73,8 @@ table.stats_table, table.games_table {
 
 .hideOnStart{
     display:none;
-
 }
+
 
 th {
     background-color: var(--decent-color);
@@ -210,21 +210,21 @@ table.games_table {
     width: auto;
     float: left;
     border-width: 10px;
-    clear: left;
+    clear: right;
     font-color: var(--main-font-color);
     background-color: var(--main-highlight-color);
     box-shadow: 0 0 22px 1px #88a4b7;
     padding: 20px;
     margin-top: 20px;
+    margin-left: 15px;
     min-width: 300px;
 }
 
 #sortDeck{
     width: auto;
     float: left;
-    clear: right;
+    clear: left;
     margin-top: 10px;
-    margin-left: 20px;
 }
 
 

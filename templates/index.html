@@ -4,7 +4,7 @@
     <title>Rommee</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="https://fonts.googleapis.com/css?family=Karla:400,700|Zilla+Slab:300" rel="stylesheet">
-    <link rel="stylesheet" href="static/game_styles.css?id=12346rfdrsffds39">
+    <link rel="stylesheet" href="static/game_styles.css?id=12346rfgdrsffds39">
     <link rel="stylesheet" href="static/css-loader.css?id=1234">
     <link rel="stylesheet" href="static/draganddrop.css?id=1234">
     <style>
@@ -118,7 +118,7 @@
                 return table;
             }
 
-            $("#sortDeck").append(renderSortDeck(7,10));
+            $("#sortDeck").append(renderSortDeck(7,7));
 
             socket.on('tempSpace', function (msg) {
                 $('#tempSpace').empty()
@@ -155,6 +155,8 @@
                 for (let i = 0; i < clickIds.length; i++) {
                     $("#" + clickIds[i]).click(function () {
                         socket.emit('pick_from_temp_space', {stone: this.id.substring("temp_".length, this.id.length + 1)});
+                        $("#droppable_temp").show();
+                        $("#drop_button").show();
                         return false;
                     });
                 }
@@ -170,7 +172,7 @@
             socket.on('renderSortDeck', function (msg) {
                 let pile = msg.data;
                 $("#sortDeck").empty();
-                $("#sortDeck").append(renderSortDeck(7,10));
+                $("#sortDeck").append(renderSortDeck(7,7));
 
                 for (let j = 0; j < pile.length; j++) {
                     let stone = pile[j];
@@ -184,7 +186,7 @@
                 $(".hideOnStart").removeClass("hideOnStart")
                 $('#mydeck').empty();
                 $("#sortDeck").empty();
-                $("#sortDeck").append(renderSortDeck(7,10));
+                $("#sortDeck").append(renderSortDeck(7,7));
                 $('#list_all_games').empty();
 
                 playerId = msg.playerId
@@ -241,7 +243,8 @@
                   droptarget: '.drop',
                 });
 
-
+                $("#droppable_temp").show();
+                $("#drop_button").show();
 
             });
 
@@ -265,12 +268,15 @@
                         $('#' + keys[i]).hide();
                     }
                     $("#next_stone_button").hide();
+                    $("#droppable_temp").hide();
+                    $("#drop_button").hide();
                 } else {
                     let keys = Object.keys(activePlayerComponents)
                     for (let i = 0; i < keys.length; i++) {
                         $('#' + keys[i]).show();
                     }
                     $("#next_stone_button").show();
+                    $("#droppable_temp").hide();
                 }
             });
 
@@ -646,14 +652,16 @@
     <div id="remaining_piles" style="width:150px;float:left;"></div>
 
     <div id="droppable_temp" class="drop">
-        <span style="color:#AAAAAA;font-style: normal;font-weight: normal">Runde beenden</span>
+        <span style="color:#AAAAAA;font-style: normal;font-weight: normal">Zug beenden</span>
     </div>
 
     <div id="tempSpace" style="float:left;clear:right;width:auto"></div>
 
-    <form id="next_stone" method="POST" action='#' style="clear:both;margin-top:20px">
+    <div style="clear:both;padding-top:5px">
+    <form id="next_stone" method="POST" action='#'>
         <input id="next_stone_button" type="submit" value="Stein abheben">
     </form>
+    </div>
 </div>
 
 
@@ -663,14 +671,17 @@
     <div id="drop_zone" class="drop">
         <div id="drop_zone_text">Auslagefl&auml;che</div>
         <form id="publish_stones" method="POST" action='#'>
-            <input type="submit" value="Ablegen">
+            <div id="drop_button">
+                <input type="submit" value="Ablegen">
+            </div>
         </form>
     </div>
 </div>
 
+<div id="sortDeck" class="drop hideOnStart"></div>
 <div id="finishArea_others" class="hideOnStart"></div>
 
-<div id="sortDeck" class="drop hideOnStart"></div>
+
 
 
 
