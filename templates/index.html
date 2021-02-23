@@ -4,7 +4,7 @@
     <title>Rommee</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="https://fonts.googleapis.com/css?family=Karla:400,700|Zilla+Slab:300" rel="stylesheet">
-    <link rel="stylesheet" href="static/game_styles.css?id=12346rfdsffds39">
+    <link rel="stylesheet" href="static/game_styles.css?id=12346rfdrsffds39">
     <link rel="stylesheet" href="static/css-loader.css?id=1234">
     <link rel="stylesheet" href="static/draganddrop.css?id=1234">
     <style>
@@ -181,6 +181,7 @@
             });
 
             socket.on('getdeck', function (msg) {
+                $(".hideOnStart").removeClass("hideOnStart")
                 $('#mydeck').empty();
                 $("#sortDeck").empty();
                 $("#sortDeck").append(renderSortDeck(7,10));
@@ -636,7 +637,7 @@
 </div>
 
 <div id="statistikInfo" style="float:left;margin-left:30px">
-    <div id="stats" style="width:auto;float:left;clear:right"></div>
+    <div id="stats" style="width:auto;float:left;clear:right" class="hideOnStart"></div>
     <div id="list_all_games" style="width:auto;float:left"></div>
 </div>
 

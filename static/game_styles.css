@@ -72,8 +72,8 @@ table.stats_table, table.games_table {
 }
 
 .hideOnStart{
-    /*display: ;*/
-    
+    display:none;
+
 }
 
 th {
