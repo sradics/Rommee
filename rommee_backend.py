@@ -146,6 +146,7 @@ class Game:
             in_deck_info = in_deck_points
             if self.status!=GameStatus.FINISHED:
                 in_deck_info = "*"
+                total_for_player = "*"
 
             if not player in self.playerFinishAreas: #player did not yet get out
                 total_all_players[player] = {'has_finished': False,
