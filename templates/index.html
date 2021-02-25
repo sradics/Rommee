@@ -472,6 +472,95 @@
                 $('#list_all_games').append(table);
             });
 
+            socket.on('all_stats', function (msg) {
+                $('#css_loader_screen').removeClass('is-active');
+                $('#all_stats').empty()
+                for (let k=0;k<msg.all_stats.length;k++){
+                    let stats_entry_keys = Object.keys(msg.all_stats[k]);
+                    let table = $('<table>').addClass('stats_table');
+                    let hrow = $('<tr>').addClass('stats_hrow');
+
+                    let headers = ["SpielerIn","Punkte gesamt","davon ausgelegt","davon angelegt","davon in der Hand"]
+                    for (let i=0;i<headers.length;i++){
+                        let hcol = $('<th>').addClass('stats_hcol');
+                        hcol.append(headers[i]);
+                        hrow.append(hcol);
+                    }
+                    table.append(hrow);
+
+                    for (let i = 0; i < stats_entry_keys.length; i++) {
+                        let stats_entry = msg.all_stats[k][stats_entry_keys[i]];
+                        let row = $('<tr>').addClass('stats_row');
+                        let col = $('<td>').addClass('stats_col');
+                        let text = "";
+
+                        if (stats_entry['has_finished'] == true) {
+                            text =
+                                "<div style='margin:2px;float:left;font-weight: bolder'>" + stats_entry['player'] + "*</div>";
+                        } else {
+                            text =
+                                "<div style='margin:2px;float:left'>" + stats_entry['player'] + "</div>";
+                        }
+                        col.append(text);
+                        row.append(col);
+
+                        let values = [stats_entry['total'],stats_entry['finished'],stats_entry['added'],stats_entry['still_in_deck']]
+
+                        for (let j=0;j<values.length;j++){
+                            col = $('<td>').addClass('stats_col');
+                            text =
+                                "<div style='margin:2px;float:left'>" + values[j] + "</div>";
+                            col.append(text);
+                            row.append(col)
+                        }
+
+
+                        table.append(row);
+                    }
+
+                    $('#all_stats').append(table);
+                }
+
+                for (let k=0;k<Object.keys(msg.total).length;k++){
+
+                    let stats_entry_keys = msg.total[Object.keys(msg.total)[k]]
+                    let table = $('<table>').addClass('stats_table');
+                    let hrow = $('<tr>').addClass('stats_hrow');
+
+                    let headers = ["SpielerIn","Punkte gesamt"]
+                    for (let i=0;i<headers.length;i++){
+                        let hcol = $('<th>').addClass('stats_hcol');
+                        hcol.append(headers[i]);
+                        hrow.append(hcol);
+                    }
+                    table.append(hrow);
+
+
+                    let row = $('<tr>').addClass('stats_row');
+                    let col = $('<td>').addClass('stats_col');
+                    let text = "";
+
+
+                    let values = [stats_entry_keys['name'],stats_entry_keys['total']]
+
+                    for (let j=0;j<values.length;j++){
+                        col = $('<td>').addClass('stats_col');
+                        text =
+                            "<div style='margin:2px;float:left'>" + values[j] + "</div>";
+                        col.append(text);
+                        row.append(col)
+                    }
+
+
+                    table.append(row);
+
+
+                    $('#all_stats').append(table);
+
+                }
+
+            });
+
             socket.on('stats', function (msg) {
                 $('#css_loader_screen').removeClass('is-active');
                 $('#stats').empty()
@@ -539,6 +628,14 @@
             $('form#print_stats').submit(function (event) {
                 $('#css_loader_screen').addClass('is-active');
                 socket.emit('print_stats');
+
+                return false;
+            });
+
+            $('form#print_all_stats').submit(function (event) {
+                $('#css_loader_screen').addClass('is-active')
+                socket.emit('print_overall_stats');
+
                 return false;
             });
 
@@ -597,9 +694,6 @@
                 }
             });
 
-
-
-
         });
 
 
@@ -642,10 +736,17 @@
             <input id="print_stats" type="submit" value="Stats">
         </form>
     </div>
+    <div id="allStatsButton" class="hideOnStart">
+        <form id="print_all_stats" method="POST" action='#'>
+            <input id="print_all_stats" type="submit" value="Total Stats">
+        </form>
+    </div>
 </div>
 
 <div id="statistikInfo" style="float:left;margin-left:30px">
     <div id="stats" style="width:auto;float:left;clear:right" class="hideOnStart"></div>
+    <div id="all_stats" style="width:auto;float:left;clear:both" class="hideOnStart"></div>
+
     <div id="list_all_games" style="width:auto;float:left"></div>
 </div>
 

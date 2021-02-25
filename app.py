@@ -309,6 +309,49 @@ def list_games():
     resultAsJson = json.dumps(gamesInfo)
     emit('list_all_games', json.loads(resultAsJson))
 
+@socketio.on('print_overall_stats')
+def print_overall_status():
+    game = games[session["current_game"]]
+    players = game.players
+    playersDict = {}
+    for player in players:
+        playersDict[player]=player
+    #for tmp_game in list(games.values()):
+    #    tmp_game.status=GameStatus.FINISHED
+    overlapping_games = []
+    if game.status==GameStatus.FINISHED:
+        overlapping_games.append(game)
+    for tmp_game in list(games.values()):
+        if tmp_game.gameId == game.gameId:
+            continue
+        if tmp_game.status != GameStatus.FINISHED:
+            continue
+        tmp_players = tmp_game.players
+        if len(tmp_players)!=len(players):
+            continue
+
+        for i in range(0,len(players)):
+            if players[i] not in playersDict:
+                continue
+        overlapping_games.append(tmp_game)
+
+    all_stats = []
+    total_points_per_player = {}
+    for tmp_game in overlapping_games:
+        stats = tmp_game.game_stats()
+        all_stats.append(stats)
+        for player in stats.keys():
+            if player in total_points_per_player:
+                total_points_per_player[player]["total"]+=stats[player]["total"]
+            else:
+                total_points_per_player[player]={"total":stats[player]["total"],"name":stats[player]["player"]}
+
+
+
+
+    resultAsJson = json.dumps({'all_stats':all_stats,'total':total_points_per_player}, cls=StoneEncoder)
+    emit('all_stats', json.loads(resultAsJson), broadcast=True, room=game.gameId)
+    print(str(resultAsJson))
 
 @socketio.on('print_stats')
 def print_status():
