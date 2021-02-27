@@ -106,6 +106,11 @@ class Game:
             finished_points = 0
             in_deck_points = 0
             added_to_others = 0
+            remaining_stones = "*"
+            current_player=False
+
+            if self.get_current_player()==player:
+                current_player=True
 
             if player in self.playerFinishAreas:
                 for area in self.playerFinishAreas[player]:
@@ -159,6 +164,9 @@ class Game:
                 elif stoneInDeck.value>=10:
                     in_deck_points-=10
             total_for_player+=in_deck_points
+            remaining_stones = len(playerDeck)
+            if remaining_stones>3:
+                remaining_stones = "*"
             if player == self.finisher:
                 total_for_player+=25
             in_deck_info = in_deck_points
@@ -172,14 +180,18 @@ class Game:
                                              'total': -100,
                                              'finished': 0,
                                              'added': 0,
-                                             'still_in_deck': -100}
+                                             'still_in_deck': -100,
+                                             'remaining_stones':remaining_stones,
+                                             'is_current_player':current_player}
             else:
                 total_all_players[player]={'has_finished':(player == self.finisher),
                                        'player':self.playerNames[player],
                                        'total':total_for_player,
                                        'finished':finished_points,
                                        'added':added_to_others,
-                                       'still_in_deck':in_deck_info}
+                                       'still_in_deck':in_deck_info,
+                                       'remaining_stones':remaining_stones,
+                                       'is_current_player':current_player}
         return total_all_players
 
 

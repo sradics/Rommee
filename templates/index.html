@@ -4,7 +4,7 @@
     <title>Rommee</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="https://fonts.googleapis.com/css?family=Karla:400,700|Zilla+Slab:300" rel="stylesheet">
-    <link rel="stylesheet" href="static/game_styles.css?id=12346rfgdrsffds39">
+    <link rel="stylesheet" href="static/game_styles.css?id=10000000002">
     <link rel="stylesheet" href="static/css-loader.css?id=1234">
     <link rel="stylesheet" href="static/draganddrop.css?id=1234">
     <style>
@@ -190,6 +190,11 @@
                 $('#list_all_games').empty();
 
                 playerId = msg.playerId
+                if (msg.playerId == msg.currentPlayer){
+                    $("#gameMessage").addClass("starter");
+                }else{
+                    $("#gameMessage").removeClass("starter");
+                }
 
                 let pile = msg.data
 
@@ -210,22 +215,10 @@
                     //$("#draggable_" + pile[j].id).draggable();
                 }
 
-                /*$("#drop_zone").droppable({
-                drop: function (event, ui) {
-                    dropspace.push(removeDraggable(ui.draggable[0].id))
-                }
-                });*/
-
                 $('.dragdrop').draggable({
                   //revert: true,
                   placeholder: true,
                   droptarget: '.drop',
-                  /*
-                  drop: function(evt, droptarget) {
-                    // $(this).appendTo(droptarget).draggable('destroy');
-                      dropspace.push(removeDraggable(this[0].id))
-                  }
-                  */
 
                 });
             });
@@ -260,6 +253,7 @@
               // else the socket will automatically try to reconnect
             });
 
+
             socket.on('next_player', function (msg) {
 
                 if (playerId != msg.next_player) {
@@ -270,6 +264,7 @@
                     $("#next_stone_button").hide();
                     $("#droppable_temp").hide();
                     $("#drop_button").hide();
+                    $("#gameMessage").removeClass("starter");
                 } else {
                     let keys = Object.keys(activePlayerComponents)
                     for (let i = 0; i < keys.length; i++) {
@@ -277,6 +272,8 @@
                     }
                     $("#next_stone_button").show();
                     $("#droppable_temp").hide();
+                    $("#gameMessage").addClass("starter");
+
                 }
             });
 
@@ -405,6 +402,13 @@
                 $('#css_loader_screen').removeClass('is-active');
                 $('#gameMessage').empty()
                 message = msg.data;
+                if (msg.type=='error'){
+                    $('#gameMessage').addClass("error");
+                    $('#gameMessage').removeClass("default");
+                }else{
+                    $('#gameMessage').addClass("default");
+                    $('#gameMessage').removeClass("error");
+                }
                 $('#gameMessage').append(message);
             });
 
@@ -584,10 +588,16 @@
 
                     if (stats_entry['has_finished'] == true) {
                         text =
-                            "<div style='margin:2px;float:left;font-weight: bolder'>" + stats_entry['player'] + "*</div>";
+                            "<div style='margin:2px;float:left'>" + stats_entry['player'] + "*</div>";
                     } else {
+                        let className = "defaultPlayer";
+                        if (stats_entry['is_current_player'] == true){
+                            className = "currentPlayer";
+                        }
                         text =
-                            "<div style='margin:2px;float:left'>" + stats_entry['player'] + "</div>";
+                            "<div style='margin:2px;float:left' class='"+className+"'>" + stats_entry['player'] + " ("+
+                            stats_entry['remaining_stones']+")"
+                            "</div>";
                     }
                     col.append(text);
                     row.append(col);
@@ -731,6 +741,7 @@
             <input type="submit" value="Starte Spiel">
         </form>
     </div>
+    <!--
     <div id="statsButton" class="hideOnStart">
         <form id="print_stats" method="POST" action='#'>
             <input id="print_stats" type="submit" value="Stats">
@@ -741,14 +752,16 @@
             <input id="print_all_stats" type="submit" value="Total Stats">
         </form>
     </div>
+    -->
+    <div id="statistikInfo" style="float:left">
+        <div id="stats" style="width:auto;float:left;clear:right" class="hideOnStart"></div>
+        <div id="all_stats" style="width:auto;float:left;clear:both" class="hideOnStart"></div>
+
+        <div id="list_all_games" style="width:auto;float:left"></div>
+    </div>
 </div>
 
-<div id="statistikInfo" style="float:left;margin-left:30px">
-    <div id="stats" style="width:auto;float:left;clear:right" class="hideOnStart"></div>
-    <div id="all_stats" style="width:auto;float:left;clear:both" class="hideOnStart"></div>
 
-    <div id="list_all_games" style="width:auto;float:left"></div>
-</div>
 
 
 <div style="clear:both;margin-top:20px;" class="hideOnStart">

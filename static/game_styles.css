@@ -5,7 +5,12 @@
     --decent-highlight-color: #240090;
     --decent-color: #190061;
     --main-font-color: #FFFFFF;
+    --error-color:red;
 }
+
+
+
+
 
 body {
     font-family: 'Zilla Slab', serif;
@@ -69,6 +74,14 @@ table.stats_table, table.games_table {
     color: var(--main-font-color);
     background-color: var(--decent-highlight-color);
     font-size: small;
+}
+
+table.stats_table td,table.stats_table th {
+    border-left: var(--decent-bg-color) 1px solid;
+    border-right: var(--decent-bg-color) 1px solid;
+    border-top: var(--decent-bg-color) 2px solid;
+    padding-right:3px;
+    padding-left:2px;
 }
 
 .hideOnStart{
@@ -148,8 +161,20 @@ table.games_table {
     color: var(--main-font-color);
     margin-bottom: 5px;
     box-shadow: 0 0 22px 1px #88a4b7;
-
 }
+
+#gameMessage.error{
+    color: var(--error-color);
+}
+
+#gameMessage.default{
+    color: var(--main-font-color);
+}
+
+.starter{
+    box-shadow: 0 0 22px 1px lawngreen !important;
+}
+
 
 .joker {
     background-image: url("joker_2.jpg");
@@ -282,4 +307,13 @@ div.playerName {
     margin-right: 10px;
     box-shadow: 0 0 22px 1px #88a4b7;
     background-color: var(--main-highlight-color);
+}
+
+.currentPlayer {
+    font-weight: bolder;
+    font-style: italic;
+}
+
+.defaultPlayer {
+    font-weight: normal;
 }

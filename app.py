@@ -135,7 +135,7 @@ def renderDeck():
     game = games[session["current_game"]]
     player = game.playerDecks[session["player"]]
 
-    response = {'data': player, 'playerId': session["player"]}
+    response = {'data': player, 'playerId': session["player"], 'currentPlayer':game.get_current_player()}
     pilesAsJson = json.dumps(response, cls=StoneEncoder)
 
     emit('getdeck', json.loads(pilesAsJson))
@@ -216,7 +216,7 @@ def is_turn_pick_done():
         return True
     if game.turnCounter==0:
         return True
-    send_game_message("Du hast noch keinen Stein abgehoben oder vom Ablagestapel aufgenommen!", False, game)
+    send_error_message("Du hast noch keinen Stein abgehoben oder vom Ablagestapel aufgenommen!", False, game)
     renderDeck()
     return False
 
@@ -229,13 +229,13 @@ def pick_from_temp_space(message):
     game = games[session["current_game"]]
 
     if session["player"] not in game.playerFinishAreas or len(game.playerFinishAreas[session["player"]])==0:
-        send_game_message("Du hast noch keine Steine ausgelegt!",False,game)
+        send_error_message("Du hast noch keine Steine ausgelegt!",False,game)
         return
     if game.get_current_playerStatus().pickedFromTempSpace:
-        send_game_message("Du hast bereits from Stapel aufgenommen!", False, game)
+        send_error_message("Du hast bereits from Stapel aufgenommen!", False, game)
         return
     if game.get_current_playerStatus().pickedNextStone:
-        send_game_message("Du hast bereits einen Stein abgehoben!", False, game)
+        send_error_message("Du hast bereits einen Stein abgehoben!", False, game)
         return
 
     stoneId = message['stone']
@@ -452,6 +452,7 @@ def dropped_stone_temp(message):
             return
 
         response = {'next_player': game.get_next_player()}
+        print_status()
         emit('next_player', response, broadcast=True, room=game.gameId)
         send_game_message("Spieler "+game.playerNames[game.get_current_player()]+" ist am Zug",True,game)
 
