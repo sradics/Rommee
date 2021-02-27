@@ -37,10 +37,14 @@ def index():
 
 @socketio.on('next_stone')
 def next_stone():
-    game = games[session["current_game"]]
-    if game.status == GameStatus.FINISHED:
-        sendGameFinishedMessage()
+    if not is_valid_turn():
         return
+    game = games[session["current_game"]]
+    if game.get_current_playerStatus().pickedFromTempSpace:
+        send_game_message("Du hast bereits vom Ablagestapel aufgenommen!",False,game)
+        return
+
+    game.get_current_playerStatus().pickedNextStone=True
     stone = game.deck.pop_next_stone()
     render_next_stone(stone)
 
@@ -136,10 +140,12 @@ def renderDeck():
 
 @socketio.on('replace_joker')
 def replace_joker(message):
-    game = games[session["current_game"]]
-    if game.status == GameStatus.FINISHED:
-        sendGameFinishedMessage()
+
+    if not is_valid_turn():
         return
+    if not is_turn_pick_done():
+        return
+    game = games[session["current_game"]]
 
     stone = message['stone']
     joker = message['joker']
@@ -187,16 +193,43 @@ def replace_joker(message):
     refresh_finish_area_others()
     render_next_stone(jokerStone)
 
+def is_valid_turn():
+    game = games[session["current_game"]]
+    if game.status == GameStatus.FINISHED:
+        sendGameFinishedMessage()
+        return False
+    if game.get_current_player() != session["player"]:
+        send_game_message("Du bist aktuell nicht am Zug!",False,game)
+        renderDeck()
+        return False
+    return True
+
+def is_turn_pick_done():
+    game = games[session["current_game"]]
+    if game.get_current_playerStatus().pickedFromTempSpace:
+        return True
+    if game.get_current_playerStatus().pickedNextStone:
+        return True
+    send_game_message("Du hast noch keinen Stein abgehoben oder vom Ablagestapel aufgenommen!", False, game)
+    renderDeck()
+    return False
+
+
 
 @socketio.on('pick_from_temp_space')
 def pick_from_temp_space(message):
+    if not is_valid_turn():
+        return
     game = games[session["current_game"]]
 
-    if game.status == GameStatus.FINISHED:
-        sendGameFinishedMessage()
-        return
-    if session["player"] not in game.playerFinishAreas:
+    if session["player"] not in game.playerFinishAreas or len(game.playerFinishAreas[session["player"]])==0:
         send_game_message("Du hast noch keine Steine ausgelegt!",False,game)
+        return
+    if game.get_current_playerStatus().pickedFromTempSpace:
+        send_game_message("Du hast bereits from Stapel aufgenommen!", False, game)
+        return
+    if game.get_current_playerStatus().pickedNextStone:
+        send_game_message("Du hast bereits einen Stein abgehoben!", False, game)
         return
 
     stoneId = message['stone']
@@ -219,15 +252,17 @@ def pick_from_temp_space(message):
     response = {'data': game.tempSpace.space}
     tempSpaceAsJson = json.dumps(response, cls=StoneEncoder)
     emit('tempSpace', json.loads(tempSpaceAsJson), broadcast=True, room=game.gameId)
+    game.get_current_playerStatus().pickedFromTempSpace=True
 
 
 @socketio.on('add_stone')
 def add_stones(message):
-    game = games[session["current_game"]]
 
-    if game.status == GameStatus.FINISHED:
-        sendGameFinishedMessage()
+    if not is_valid_turn():
         return
+    if not is_turn_pick_done():
+        return
+    game = games[session["current_game"]]
 
     stone = message['stone']
     row = int(message['row'])
@@ -266,10 +301,11 @@ def add_stones(message):
 
 @socketio.on('publish_stones')
 def publish_stones(message):
-    game = games[session["current_game"]]
-    if game.status==GameStatus.FINISHED:
-        sendGameFinishedMessage()
+    if not is_valid_turn():
         return
+    if not is_turn_pick_done():
+        return
+    game = games[session["current_game"]]
 
     published_stones = message['data'];
 
@@ -375,30 +411,16 @@ def add_stone_position(message):
         if stone.id == stoneId:
             stone.position = position
 
-def rebuildSortDeck():
-    game = games[session["current_game"]]
-    playerDeck = game.playerDecks[session["player"]]
-    positionedStones = []
-    for stone in playerDeck:
-        if stone.position!=None:
-            positionedStones.append(stone)
-
-    response = {'data': positionedStones, 'playerId': session["player"]}
-    pilesAsJson = json.dumps(response, cls=StoneEncoder)
-
-    emit('renderSortDeck', json.loads(pilesAsJson))
-
-
-
 @socketio.on('droppedstone_temp')
 def dropped_stone_temp(message):
     stoneIdAsStr = message['data'][len("draggable_"):]
 
     if 'current_game' in session:
-        game = games[session["current_game"]]
-        if game.status == GameStatus.FINISHED:
-            sendGameFinishedMessage()
+        if not is_valid_turn():
             return
+        if not is_turn_pick_done():
+            return
+        game = games[session["current_game"]]
 
         game.add_stone_to_temp_space(stoneIdAsStr,session["player"])
         refresh_temp_space()

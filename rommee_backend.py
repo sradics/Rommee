@@ -5,6 +5,15 @@ import random
 from json import JSONEncoder
 import uuid
 
+class PlayerStatus:
+    def __init__(self):
+        self.name=None
+        self.pickedFromTempSpace=False
+        self.pickedNextStone=False
+    def reset(self):
+        self.pickedFromTempSpace = False
+        self.pickedNextStone = False
+
 class Game:
     def __init__(self, number_of_players):
         self.numberOfPlayers = number_of_players
@@ -20,11 +29,17 @@ class Game:
         self.playerNames = {}
         self.finisher = None
         self.status = GameStatus.NOT_STARTED
+        self.playerStatus = {}
+
+
+    def get_current_playerStatus(self):
+        return self.playerStatus[self.get_current_player()]
 
     def get_current_player(self):
         return self.players[self.currentPlayerIndex]
 
     def get_next_player(self):
+        self.get_current_playerStatus().reset()
         self.currentPlayerIndex=self.currentPlayerIndex+1
         if self.currentPlayerIndex>len(self.players)-1:
             self.currentPlayerIndex = 0
@@ -77,6 +92,7 @@ class Game:
 
         self.playerDecks[playerId] = self.piles.pop(random.randint(0 ,len(self.piles)-1))
         self.players.append(playerId)
+        self.playerStatus[playerId]= PlayerStatus()
         if len(self.playerDecks[playerId])==15:
             self.currentPlayerIndex=len(self.players)-1
         return self.playerDecks[playerId]
