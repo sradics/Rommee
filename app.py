@@ -195,9 +195,14 @@ def pick_from_temp_space(message):
     if game.status == GameStatus.FINISHED:
         sendGameFinishedMessage()
         return
+    if session["player"] not in game.playerFinishAreas:
+        send_game_message("Du hast noch keine Steine ausgelegt!",False,game)
+        return
+
     stoneId = message['stone']
 
     playerDeck = game.playerDecks[session["player"]]
+
 
     lengthTempSpace = len(game.tempSpace.space)
     index = 0
