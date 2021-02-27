@@ -33,14 +33,15 @@ input[type="submit"] {
     -webkit-appearance: none;
     font-family: 'Karla', sans-serif;
     font-weight: 700;
-    font-size: 13px;
+    font-size: 11px;
     text-transform: uppercase;
     letter-spacing: 3px;
     padding: 2px;
+    padding-left: 5px;
     color: var(--main-font-color);
     background-color: var(--decent-bg-color);
-    border: none;
-    border-radius: 5px;
+    border: 1px solid #555555;
+    border-radius: 20px;
 }
 
 input[type="submit"]:hover {
@@ -169,6 +170,21 @@ table.games_table {
 
 #gameMessage.default{
     color: var(--main-font-color);
+}
+
+#nr_players_label{
+    color: #9a9a9a;
+}
+
+#nr_players{
+
+}
+
+select {
+    background-color: transparent;
+    color: var(--main-font-color);
+    border: 0px;
+    padding: 0 1em 0 0;
 }
 
 .starter{

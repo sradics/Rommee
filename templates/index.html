@@ -4,7 +4,7 @@
     <title>Rommee</title>
     <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <link href="https://fonts.googleapis.com/css?family=Karla:400,700|Zilla+Slab:300" rel="stylesheet">
-    <link rel="stylesheet" href="static/game_styles.css?id=10000000002">
+    <link rel="stylesheet" href="static/game_styles.css?id=10000000006">
     <link rel="stylesheet" href="static/css-loader.css?id=1234">
     <link rel="stylesheet" href="static/draganddrop.css?id=1234">
     <style>
@@ -724,20 +724,30 @@
 </div>
 
 <div id="startForms">
-    <div id="initGameForm">
+    <div id="initGameForm" style="width: 500px">
         <form id="init_game" method="POST" action='#'>
-            <div class="form__group field">
-                <input type="text" name="nr_players" id="nr_players" placeholder="Anzahl Spieler">
+
+                <!--<input type="text" name="nr_players" id="nr_players" placeholder="Anzahl Spieler">-->
+                <div style="width: 276px;float:left">
+                    <label for="nr_players" id="nr_players_label">Anzahl Spieler</label>
+                    <select id="nr_players" name="nr_players" style="width: 140px;padding-left:40px">
+                        <option value="1">1</option>
+                        <option value="2">2</option>
+                        <option value="3">3</option>
+                        <option value="4">4</option>
+                      </select>
+                </div>
                 <input type="submit" value="Bereite Spiel vor">
-            </div>
+
+
 
         </form>
     </div>
 
-    <div id="getDeckForm">
+    <div id="getDeckForm" style="width:500px">
         <form id="getdeck" method="POST" action='#'>
-            <input type="text" name="game_id" id="game_id" placeholder="Spiel Code">
-            <input type="text" name="player_name" id="player_name" placeholder="Name der SpielerIn ">
+            <input type="text" name="game_id" id="game_id" placeholder="Spiel Code" style="width:120px">
+            <input type="text" name="player_name" id="player_name" placeholder="Name der SpielerIn " style="width:140px">
             <input type="submit" value="Starte Spiel">
         </form>
     </div>
