@@ -40,8 +40,12 @@ def next_stone():
     if not is_valid_turn():
         return
     game = games[session["current_game"]]
+    if game.turnCounter==0:
+        send_error_message("Zum Spielspart darf kein Stein aufgenommen werden!", False, game)
+        return
+
     if game.get_current_playerStatus().pickedFromTempSpace:
-        send_game_message("Du hast bereits vom Ablagestapel aufgenommen!",False,game)
+        send_error_message("Du hast bereits vom Ablagestapel aufgenommen!",False,game)
         return
 
     game.get_current_playerStatus().pickedNextStone=True
@@ -107,7 +111,7 @@ def get_deck(message):
         session["current_game"]=game.gameId
         deck = game.assign_player(session["player"])
         if deck == None:
-            send_game_message("Ungültiger Spieler",False,game)
+            send_error_message("Ungültiger Spieler",False,game)
             return
         game.playerNames[session["player"]] = message['playerName']
 
@@ -177,7 +181,7 @@ def replace_joker(message):
             break
     dummy_replaceArray[replaceIndex] = replaceStone
     if validate_area_stone_constellation(dummy_replaceArray) == False:
-        send_game_message("Die Kombination der Steine war ungültig!", False, game)
+        send_error_message("Die Kombination der Steine war ungültig!", False, game)
         renderDeck()
         return
 
@@ -199,7 +203,7 @@ def is_valid_turn():
         sendGameFinishedMessage()
         return False
     if game.get_current_player() != session["player"]:
-        send_game_message("Du bist aktuell nicht am Zug!",False,game)
+        send_error_message("Du bist aktuell nicht am Zug!",False,game)
         renderDeck()
         return False
     return True
@@ -209,6 +213,8 @@ def is_turn_pick_done():
     if game.get_current_playerStatus().pickedFromTempSpace:
         return True
     if game.get_current_playerStatus().pickedNextStone:
+        return True
+    if game.turnCounter==0:
         return True
     send_game_message("Du hast noch keinen Stein abgehoben oder vom Ablagestapel aufgenommen!", False, game)
     renderDeck()
@@ -280,7 +286,7 @@ def add_stones(message):
             else:
                 testArea.append(stoneInDeck)
             if validate_area_stone_constellation(testArea) == False:
-                send_game_message("Die Kombination der Steine war ungültig!", False, game)
+                send_error_message("Die Kombination der Steine war ungültig!", False, game)
                 renderDeck()
                 #refresh_finish_area_others()
                 return
@@ -314,11 +320,18 @@ def publish_stones(message):
         refresh_finish_area_others()
         send_game_message("Steine wurden erfolgreich abgelegt", False, game)
     else:
-        send_game_message("Die Kombination der Steine war ungültig!",False,game)
+        send_error_message("Die Kombination der Steine war ungültig!",False,game)
         renderDeck()
 
+def send_error_message(message, broadcast,game):
+    response = {'data': message,'type':'error'}
+    if broadcast==True:
+        emit('game_message', response, broadcast=broadcast, room=game.gameId)
+    else:
+        emit('game_message', response, broadcast=broadcast)
+
 def send_game_message(message, broadcast,game):
-    response = {'data': message}
+    response = {'data': message,'type':'default'}
     if broadcast==True:
         emit('game_message', response, broadcast=broadcast, room=game.gameId)
     else:

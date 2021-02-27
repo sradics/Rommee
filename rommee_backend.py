@@ -30,6 +30,7 @@ class Game:
         self.finisher = None
         self.status = GameStatus.NOT_STARTED
         self.playerStatus = {}
+        self.turnCounter = 0
 
 
     def get_current_playerStatus(self):
@@ -39,6 +40,7 @@ class Game:
         return self.players[self.currentPlayerIndex]
 
     def get_next_player(self):
+        self.turnCounter = self.turnCounter + 1
         self.get_current_playerStatus().reset()
         self.currentPlayerIndex=self.currentPlayerIndex+1
         if self.currentPlayerIndex>len(self.players)-1:
