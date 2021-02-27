@@ -260,6 +260,20 @@ def pick_from_temp_space(message):
     emit('tempSpace', json.loads(tempSpaceAsJson), broadcast=True, room=game.gameId)
     game.get_current_playerStatus().pickedFromTempSpace=True
 
+def move_from_tempSpace(stoneId):
+    game = games[session["current_game"]]
+    playerDeck = game.playerDecks[session["player"]]
+
+    lengthTempSpace = len(game.tempSpace.space)
+    index = 0
+    for num in list(range(0, lengthTempSpace)):
+        stoneTempSpace = game.tempSpace.space[num]
+        if stoneTempSpace.id == stoneId:
+            index = num
+            break
+    stones_to_add = game.tempSpace.space[index:len(game.tempSpace.space)]
+    game.tempSpace.space = game.tempSpace.space[0:index]
+    playerDeck.extend(stones_to_add)
 
 @socketio.on('add_stone')
 def add_stones(message):
@@ -305,20 +319,73 @@ def add_stones(message):
     refresh_finish_area_others()
 
 
+def resetDeckAndTempSpace():
+    game = games[session["current_game"]]
+    renderDeck()
+    response = {'data': game.tempSpace.space}
+    tempSpaceAsJson = json.dumps(response, cls=StoneEncoder)
+    emit('tempSpace', json.loads(tempSpaceAsJson), broadcast=True, room=game.gameId)
+
+
 @socketio.on('publish_stones')
 def publish_stones(message):
     if not is_valid_turn():
         return
-    if not is_turn_pick_done():
-        return
     game = games[session["current_game"]]
-
     published_stones = message['data'];
+
+    stoneFromTempSpace = None
+    for stone in published_stones:
+        for tempStone in game.tempSpace.space:
+            if tempStone.id == stone:
+                stoneFromTempSpace=tempStone
+
+    if stoneFromTempSpace!=None:
+        if session["player"] not in game.playerFinishAreas or len(game.playerFinishAreas[session["player"]]) == 0:
+            send_error_message("Du hast noch keine Steine ausgelegt!", False, game)
+            resetDeckAndTempSpace()
+            return
+        if game.get_current_playerStatus().pickedFromTempSpace:
+            send_error_message("Du hast bereits from Stapel aufgenommen!", False, game)
+            resetDeckAndTempSpace()
+            return
+        if game.get_current_playerStatus().pickedNextStone:
+            send_error_message("Du hast bereits einen Stein abgehoben!", False, game)
+            resetDeckAndTempSpace()
+            return
+
+        testArea = []
+        for stone in published_stones:
+            if stone==stoneFromTempSpace.id:
+                testArea.append(stoneFromTempSpace)
+            else:
+                for num in list(range(0, len(game.playerDecks[session["player"]]))):
+                    stoneInDeck = game.playerDecks[session["player"]][num]
+                    if stoneInDeck.id == stone:
+                        testArea.append(stoneInDeck)
+                        break
+
+        if validate_area_stone_constellation(testArea) == False:
+            send_error_message("Die Kombination der Steine war ungültig!", False, game)
+            resetDeckAndTempSpace()
+            return
+
+        move_from_tempSpace(stoneFromTempSpace.id)
+
+    if stoneFromTempSpace==None and not is_turn_pick_done():
+        return
 
     stoneCombinationWasValid = game.add_stones_to_finish_areas(published_stones, session["player"])
     if stoneCombinationWasValid:
         refresh_finish_area_others()
         send_game_message("Steine wurden erfolgreich abgelegt", False, game)
+        if stoneFromTempSpace != None:
+            response = {'data': game.tempSpace.space}
+            tempSpaceAsJson = json.dumps(response, cls=StoneEncoder)
+            emit('tempSpace', json.loads(tempSpaceAsJson), broadcast=True, room=game.gameId)
+            game.get_current_playerStatus().pickedFromTempSpace = True
+            renderDeck()
+
     else:
         send_error_message("Die Kombination der Steine war ungültig!",False,game)
         renderDeck()

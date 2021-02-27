@@ -25,6 +25,10 @@
             return toRemoveFrom.substring("draggable_".length, toRemoveFrom.length + 1);
         }
 
+        function removePrefix(toRemoveFrom, prefix) {
+            return toRemoveFrom.substring(prefix.length, toRemoveFrom.length + 1);
+        }
+
         function    createStoneDiv(stone,inTable=false) {
             let text = "";
             if (stone.value != 0) {
@@ -154,7 +158,13 @@
 
                 for (let i = 0; i < clickIds.length; i++) {
                     $("#" + clickIds[i]).click(function () {
-                        socket.emit('pick_from_temp_space', {stone: this.id.substring("temp_".length, this.id.length + 1)});
+                        //socket.emit('pick_from_temp_space', {stone: this.id.substring("temp_".length, this.id.length + 1)});
+                        $('#'+this.id).draggable({
+                          //revert: true,
+                          placeholder: true,
+                          droptarget: '.drop',
+
+                        });
                         $("#droppable_temp").show();
                         $("#drop_button").show();
                         return false;
@@ -211,9 +221,6 @@
                 }
 
                 pile = msg.data
-                for (let j = 0; j < pile.length; j++) {
-                    //$("#draggable_" + pile[j].id).draggable();
-                }
 
                 $('.dragdrop').draggable({
                   //revert: true,
@@ -279,7 +286,7 @@
 
             socket.on('finishArea_others', function (msg) {
                 for (let i = 0; i < consolidatedDropspace.length; i++) {
-                    $("#draggable_" + consolidatedDropspace[i]).remove()
+                    $("#" + consolidatedDropspace[i]).remove()
                 }
                 dropspace = [];
                 consolidatedDropspace = [];
@@ -658,20 +665,29 @@
                 consolidatedDropspace = [];
 
                 for (let i = 0; i < dropspace.length; i++) {
-                    if (isOverlap('#drop_zone', "#draggable_" + dropspace[i])) {
+                    if (isOverlap('#drop_zone', "#" + dropspace[i])) {
                         consolidatedDropspace.push(dropspace[i]);
                     }
                 }
 
                 consolidatedDropspace.sort(function (a, b) {
-                    return $("#draggable_" + a).offset().left - $("#draggable_" + b).offset().left
+                    return $("#" + a).offset().left - $("#" + b).offset().left
                 });
 
                 $('#css_loader_screen').addClass('is-active');
-                socket.emit('publish_stones', {data: consolidatedDropspace});
+                let dropSpaceWithoutPrefix = [];
+                for (let i=0;i<consolidatedDropspace.length;i++){
+                    if (consolidatedDropspace[i].startsWith("draggable_")){
+                        dropSpaceWithoutPrefix.push(removeDraggable(consolidatedDropspace[i]));
+                    }
+                    if (consolidatedDropspace[i].startsWith("temp_")){
+                        dropSpaceWithoutPrefix.push(removePrefix(consolidatedDropspace[i],"temp_"));
+                    }
+                }
+                socket.emit('publish_stones', {data: dropSpaceWithoutPrefix});
 
                 for (let i = 0; i < consolidatedDropspace.length; i++) {
-                    $("#draggable_" + consolidatedDropspace[i]).remove()
+                    $("#" + consolidatedDropspace[i]).remove()
                 }
                 dropspace = [];
                 consolidatedDropspace = [];
@@ -700,7 +716,7 @@
 
             $("#drop_zone").droppable({
                 drop: function (event, ui) {
-                    dropspace.push(removeDraggable(ui[0].id))
+                    dropspace.push(ui[0].id)
                 }
             });
 
