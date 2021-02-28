@@ -501,6 +501,16 @@ def dropped_stone_temp(message):
         if not is_turn_pick_done():
             return
         game = games[session["current_game"]]
+        finishedStones = game.calculate_area_stats(session["player"])
+        if finishedStones>0 and finishedStones<50:
+            send_error_message("Weniger als 50 Punkte ausgelegt. Es waren nur "+str(finishedStones)+" Punkte. Steine wurden zurückbewegt."
+                               , False, game)
+            game.remove_from_finished_area(session["player"])
+            refresh_temp_space()
+            resetDeckAndTempSpace()
+            refresh_finish_area_others()
+            return
+
 
         game.add_stone_to_temp_space(stoneIdAsStr,session["player"])
         refresh_temp_space()

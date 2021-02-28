@@ -99,6 +99,47 @@ class Game:
             self.currentPlayerIndex=len(self.players)-1
         return self.playerDecks[playerId]
 
+    def remove_from_finished_area(self, playerId):
+        for area in self.playerFinishAreas[playerId]:
+            playerDeck = self.playerDecks[playerId]
+            playerDeck.extend(area)
+            area.clear()
+
+    def calculate_area_stats(self, playerId):
+        finished_points = 0
+        if not playerId in self.playerFinishAreas:
+            return finished_points
+        for area in self.playerFinishAreas[playerId]:
+            all_are_ones = True
+            for stone in area:
+                if stone.value != 1 and stone.value != 0:  # not a one or a joker
+                    all_are_ones = False
+
+            if all_are_ones:
+                for stone in area:
+                    if stone.id not in self.addedStoneIndex:  # stone not add by someone else
+                        finished_points += 25
+            else:
+                previousValue = 0
+                for stone in area:
+                    if stone.id in self.addedStoneIndex:
+                        previousValue = stone.value
+                        continue
+                    if stone.value == 0 and previousValue < 9:
+                        finished_points += 5
+                    elif stone.value == 0 and previousValue >= 10:
+                        finished_points += 10
+                    elif stone.value == 1 and previousValue < 9:
+                        finished_points += 5
+                    elif stone.value == 1:
+                        finished_points += 10
+                    elif stone.value >= 10:
+                        finished_points += 10
+                    else:
+                        finished_points += 5
+                    previousValue = stone.value
+        return finished_points
+
     def game_stats(self):
         total_all_players = {}
         for player in self.players:
@@ -113,35 +154,7 @@ class Game:
                 current_player=True
 
             if player in self.playerFinishAreas:
-                for area in self.playerFinishAreas[player]:
-                    all_are_ones = True
-                    for stone in area:
-                        if stone.value!=1 and stone.value!=0: #not a one or a joker
-                            all_are_ones = False
-
-                    if all_are_ones:
-                        for stone in area:
-                            if stone.id not in self.addedStoneIndex: #stone not add by someone else
-                                finished_points += 25
-                    else:
-                        previousValue = 0
-                        for stone in area:
-                            if stone.id in self.addedStoneIndex:
-                                previousValue = stone.value
-                                continue
-                            if stone.value==0 and previousValue<9:
-                                finished_points += 5
-                            elif stone.value == 0 and previousValue >= 10:
-                                finished_points += 10
-                            elif stone.value==1 and previousValue<9:
-                                finished_points += 5
-                            elif stone.value==1:
-                                finished_points += 10
-                            elif stone.value>=10:
-                                finished_points += 10
-                            else:
-                                finished_points += 5
-                            previousValue = stone.value
+                finished_points = self.calculate_area_stats(player)
 
             total_for_player+=finished_points
 
