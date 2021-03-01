@@ -105,6 +105,16 @@ class Game:
             playerDeck.extend(area)
             area.clear()
 
+
+    def calculate_area_points(self, playerId):
+        finished_points = 0
+        if not playerId in self.playerFinishAreas:
+            return finished_points
+        for area in self.playerFinishAreas[playerId]:
+            finished_points += calc_area_value(area,self.addedStoneIndex)
+        return finished_points
+
+
     def calculate_area_stats(self, playerId):
         finished_points = 0
         if not playerId in self.playerFinishAreas:
@@ -207,7 +217,37 @@ class Game:
                                        'is_current_player':current_player}
         return total_all_players
 
+def calc_area_value(area, addedStoneIndex={}):
+    finished_points = 0
+    all_are_ones = True
+    for stone in area:
+        if stone.value != 1 and stone.value != 0:  # not a one or a joker
+            all_are_ones = False
 
+    if all_are_ones:
+        for stone in area:
+            if stone.id not in addedStoneIndex:  # stone not add by someone else
+                finished_points += 25
+    else:
+        previousValue = 0
+        for stone in area:
+            if stone.id in addedStoneIndex:
+                previousValue = stone.value
+                continue
+            if stone.value == 0 and previousValue < 9:
+                finished_points += previousValue + 1
+            elif stone.value == 0 and previousValue >= 10:
+                finished_points += previousValue + 1
+            elif stone.value == 1 and previousValue < 9:
+                finished_points += 1
+            elif stone.value == 1:
+                finished_points += 14
+            elif stone.value >= 10:
+                finished_points += stone.value
+            else:
+                finished_points += stone.value
+            previousValue = stone.value
+    return finished_points
 
 def calc_stone_value_in_area(stone_to_check,area):
     stone_index = None
