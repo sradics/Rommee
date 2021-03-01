@@ -246,7 +246,10 @@ def calc_area_value(area, addedStoneIndex={}):
                 finished_points += stone.value
             else:
                 finished_points += stone.value
-            previousValue = stone.value
+            if previousValue==0:
+                previousValue = stone.value
+            else:
+                previousValue+=1
     return finished_points
 
 def calc_stone_value_in_area(stone_to_check,area):

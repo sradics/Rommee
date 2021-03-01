@@ -51,7 +51,10 @@ class TestAreaPointsCalculation(unittest.TestCase):
     def test_simpleCount_12r_13r_1r(self):
         area = [Stone(12, Color.RED), Stone(13, Color.RED), Stone(1, Color.RED)]
         self.assertEqual(39,calc_area_value(area), "12r_13r_1r")
-        
+
+    def test_simpleCount_11r_12r_j_1(self):
+        area = [Stone(11, Color.RED), Stone(12, Color.RED), Stone(0, Color.JOKER), Stone(1, Color.RED)]
+        self.assertEqual(50,calc_area_value(area), "11r_12r_j_1r")
 
     def test_simpleCount_12r_13r_j(self):
         area = [Stone(12, Color.RED), Stone(13, Color.RED), Stone(0, Color.JOKER)]
